@@ -1,6 +1,7 @@
 import unittest
 import mock
 from mock import sentinel
+from csvtools.test import ReaderWriter
 import csvtools.extract_map as m
 
 
@@ -118,20 +119,6 @@ class Test_Map_translate(unittest.TestCase):
         map.translate([sentinel.new])
 
         self.assertEqual({(sentinel.new,): 0}, map.values)
-
-
-class ReaderWriter(object):
-
-    rows = None
-
-    def __init__(self):
-        self.rows = []
-
-    def writerow(self, row):
-        self.rows.append(row)
-
-    def __iter__(self):
-        return iter(self.rows)
 
 
 class Test_Map_write(unittest.TestCase):
