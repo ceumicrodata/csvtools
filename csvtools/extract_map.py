@@ -30,7 +30,7 @@ class DuplicateRefsError(Exception):
 
 class Map(object):
 
-    modified = False
+    changed = False
 
     def __init__(self, map_field_maps, ref_field_name):
         self.transformer = SimpleTransformer(map_field_maps)
@@ -85,7 +85,7 @@ class Map(object):
         ref = self.values.setdefault(key, self.next_ref)
         if ref == self.next_ref:
             self.next_ref += 1
-            self.modified = True
+            self.changed = True
         return ref
 
     def bind(self, header):
@@ -123,7 +123,7 @@ class ExtractMap(Transformer):
         self.transformer = None
 
     def bind(self, header):
-        # TODO: DRY, this part is copied from RemoveFields, except for adding the ref field
+        # TODO: DRY, this part is copied from RemoveFields, except for adding the ref field (extract common stuff into ProxyTransformer?)
         input_fields_to_keep = tuple(
             field_name
             for field_name in header
@@ -150,7 +150,7 @@ class ExtractMap(Transformer):
 
 
 def main():
-    map_file, map_fields, map_ref_field_name_map = sys.argv[1:]
+    map_file, map_fields, map_ref_field = sys.argv[1:]
 
     # process(sys.stdin, sys.stdout, map_file, map_fields, map_ref_field_name)
 

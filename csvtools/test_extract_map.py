@@ -72,7 +72,7 @@ class Test_Map_translate(unittest.TestCase):
 
     def test_if_not_in_values_ref_returned_is_previous_next_ref(self):
         map = self.fixture_aa_bb_with_aa1_bb1_1()
-        map.modified = False
+        map.changed = False
 
         previous_next_ref = map.next_ref
         ref = map.translate((sentinel.aa_notin, sentinel.bb_notin))
@@ -81,7 +81,7 @@ class Test_Map_translate(unittest.TestCase):
 
     def test_if_not_in_values_next_ref_is_incremented(self):
         map = self.fixture_aa_bb_with_aa1_bb1_1()
-        map.modified = False
+        map.changed = False
 
         previous_next_ref = map.next_ref
         map.translate((sentinel.aa_notin, sentinel.bb_notin))
@@ -90,27 +90,27 @@ class Test_Map_translate(unittest.TestCase):
 
     def test_if_not_in_values_sets_modified(self):
         map = self.fixture_aa_bb_with_aa1_bb1_1()
-        map.modified = False
+        map.changed = False
 
         map.translate((sentinel.aa_notin, sentinel.bb_notin))
 
-        self.assertTrue(map.modified)
+        self.assertTrue(map.changed)
 
     def test_if_modified_and_in_values_remains_modified(self):
         map = self.fixture_aa_bb_with_aa1_bb1_1()
-        map.modified = True
+        map.changed = True
 
         map.translate((sentinel.aa1, sentinel.bb1))
 
-        self.assertTrue(map.modified)
+        self.assertTrue(map.changed)
 
     def test_if_unmodified_and_in_values_remains_unmodified(self):
         map = self.fixture_aa_bb_with_aa1_bb1_1()
-        map.modified = False
+        map.changed = False
 
         map.translate((sentinel.aa1, sentinel.bb1))
 
-        self.assertFalse(map.modified)
+        self.assertFalse(map.changed)
 
     def test_empty_map(self):
         map = make_map('aa', 'id')
