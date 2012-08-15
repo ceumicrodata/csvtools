@@ -1,4 +1,5 @@
 from csvtools.field import NamedField
+from csvtools.field_maps import FieldMaps
 
 
 class Transformer(object):
@@ -32,8 +33,9 @@ class RecordTransformer(Transformer):
     parsed_spec = None
     extractors = None
 
-    def __init__(self, transformer_spec_string):
-        self.parsed_spec = self.parse_transformer_spec_string(transformer_spec_string)
+    def __init__(self, field_maps_string):
+        self.parsed_spec = FieldMaps()
+        self.parsed_spec.parse_from(field_maps_string)
         self.input_fields = dict(
             (input_field_name, NamedField(input_field_name))
             for _out, input_field_name in self.parsed_spec)
@@ -59,19 +61,3 @@ class RecordTransformer(Transformer):
         return tuple(
             input_field_name
             for (_, input_field_name) in self.parsed_spec)
-
-    def parse_field_spec_string(self, field_spec):
-        '''
-        Parses field specs format: out[=in]
-        '''
-        out, eq, in_ = field_spec.partition('=')
-        in_ = in_ or out
-        return (out, in_)
-
-    def parse_transformer_spec_string(self, transformer_spec):
-        '''
-        Parses list of field specs, where field specs are separated by comma (,)
-        '''
-        return tuple(
-            self.parse_field_spec_string(field_spec)
-            for field_spec in transformer_spec.split(','))

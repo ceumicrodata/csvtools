@@ -53,21 +53,6 @@ class Test_Transformer_process(unittest.TestCase):
         self.assertEqual([sentinel.output, sentinel.output], writer.rows[1:])
 
 
-class Test_RecordTransformer_parse_transformer_spec_string(unittest.TestCase):
-
-    def test_only_one_output_field_input_defaults_to_output(self):
-        rb = m.RecordTransformer('')
-        self.assertEqual((('out', 'out'),), rb.parse_transformer_spec_string('out'))
-
-    def test_only_one_output_and_input_field(self):
-        rb = m.RecordTransformer('')
-        self.assertEqual((('out', 'in'),), rb.parse_transformer_spec_string('out=in'))
-
-    def test_two_fields(self):
-        rb = m.RecordTransformer('')
-        self.assertEqual((('out1', 'in1'), ('out2', 'in2')), rb.parse_transformer_spec_string('out1=in1,out2=in2'))
-
-
 class Test_RecordTransformer_output_header(unittest.TestCase):
 
     def test(self):
