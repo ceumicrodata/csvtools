@@ -34,16 +34,16 @@ class RecordTransformer(Transformer):
 
     def __init__(self, transformer_spec_string):
         self.parsed_spec = self.parse_transformer_spec_string(transformer_spec_string)
-        self.field_map = dict(
+        self.input_fields = dict(
             (input_field_name, NamedField(input_field_name))
             for _out, input_field_name in self.parsed_spec)
 
     def bind(self, header_row):
-        for field in self.field_map.itervalues():
+        for field in self.input_fields.itervalues():
             field.initialize_from(header_row)
 
         self.extractors = tuple(
-            self.field_map[name].value_extractor
+            self.input_fields[name].value_extractor
             for name in self.input_field_names)
 
     def transform(self, input_row):
