@@ -14,7 +14,7 @@ class RecordTransformer(Transformer):
 
     '''
     .output_header : tuple of field names in output
-    .transform : creates a new tuple based on the input_tuple and the specs
+    .transform : creates a new tuple based on the input_row and the specs
     '''
 
     parsed_spec = None
@@ -36,12 +36,12 @@ class RecordTransformer(Transformer):
         for record in reader_iter:
             writer.writerow(transform(record))
 
-    def transform(self, input_tuple):
-        return tuple(e(input_tuple) for e in self.extractors)
+    def transform(self, input_row):
+        return tuple(e(input_row) for e in self.extractors)
 
-    def bind(self, header_tuple):
+    def bind(self, header_row):
         for field in self.field_map.itervalues():
-            field.initialize_from(header_tuple)
+            field.initialize_from(header_row)
 
         self.extractors = tuple(
             self.field_map[name].value_extractor

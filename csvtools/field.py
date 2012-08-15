@@ -1,18 +1,18 @@
 class Field(object):
 
-    def initialize_from(self, header_tuple):
+    def initialize_from(self, header_row):
         pass
 
-    def value_extractor(self, row_tuple):
+    def value_extractor(self, row):
         pass
 
 
-def None_extractor(row_tuple):
+def None_extractor(row):
     return None
 
 def make_index_extractor(index):
-    def extractor(row_tuple):
-        return row_tuple[index]
+    def extractor(row):
+        return row[index]
     return extractor
 
 
@@ -23,8 +23,8 @@ class NamedField(Field):
     def __init__(self, name):
         self.name = name
 
-    def initialize_from(self, header_tuple):
-        self.index = header_tuple.index(self.name)
+    def initialize_from(self, header_row):
+        self.index = header_row.index(self.name)
 
     @property
     def bound(self):
