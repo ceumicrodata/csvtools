@@ -1,6 +1,6 @@
 class Field(object):
 
-    def initialize_from(self, header_row):
+    def bind(self, header_row):
         pass
 
     def value_extractor(self, row):
@@ -23,7 +23,7 @@ class NamedField(Field):
     def __init__(self, name):
         self.name = name
 
-    def initialize_from(self, header_row):
+    def bind(self, header_row):
         self.index = header_row.index(self.name)
 
     @property

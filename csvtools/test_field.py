@@ -3,19 +3,19 @@ from mock import sentinel
 import csvtools.field as m
 
 
-class Test_NamedField_initialize_from(unittest.TestCase):
+class Test_NamedField_bind(unittest.TestCase):
 
     def test_index_of_name_stored(self):
         f = m.NamedField('name')
 
-        f.initialize_from(('a', 'b', 'name', 'c'))
+        f.bind(('a', 'b', 'name', 'c'))
 
         self.assertEqual(2, f.index)
 
     def test_makes_field_bound(self):
         f = m.NamedField('name')
 
-        f.initialize_from(('a', 'b', 'name', 'c'))
+        f.bind(('a', 'b', 'name', 'c'))
 
         self.assertTrue(f.bound)
 

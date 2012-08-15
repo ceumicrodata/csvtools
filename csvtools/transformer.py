@@ -42,7 +42,7 @@ class RecordTransformer(Transformer):
 
     def bind(self, header_row):
         for field in self.input_fields.itervalues():
-            field.initialize_from(header_row)
+            field.bind(header_row)
 
         self.extractors = tuple(
             self.input_fields[name].value_extractor
