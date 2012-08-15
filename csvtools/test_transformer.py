@@ -1,7 +1,56 @@
 import unittest
+import mock
 from mock import sentinel
 from csvtools.test import ReaderWriter
 import csvtools.transformer as m
+
+
+class BindCheckerTransformer(m.Transformer):
+
+    bound = False
+    output_header = 'output_header'
+
+    def bind(self, header):
+        self.bound = True
+
+    def transform(self, row):
+        if not self.bound:
+            raise Exception
+        return row
+
+
+class Test_Transformer_process(unittest.TestCase):
+
+    def test_calls_bind_before_transform(self):
+        reader = ReaderWriter()
+        reader.rows = [('a', 'b'), (1, 2)]
+        writer = ReaderWriter()
+
+        BindCheckerTransformer().process(reader, writer)
+
+    def test_header_is_output_header(self):
+        reader = ReaderWriter()
+        reader.rows = [('a', 'b')]
+        writer = ReaderWriter()
+
+        t = m.Transformer()
+        t.output_header = sentinel.output_header
+
+        t.process(reader, writer)
+
+        self.assertEqual([sentinel.output_header], writer.rows)
+
+    def test_content_is_produced_by_process(self):
+        reader = ReaderWriter()
+        reader.rows = [('a', 'b'), (1, 2), (1, 2)]
+        writer = ReaderWriter()
+
+        t = m.Transformer()
+        t.transform = mock.Mock(t.transform, return_value=sentinel.output)
+
+        t.process(reader, writer)
+
+        self.assertEqual([sentinel.output, sentinel.output], writer.rows[1:])
 
 
 class Test_RecordTransformer_parse_transformer_spec_string(unittest.TestCase):
@@ -56,17 +105,3 @@ class Test_RecordTransformer_transform(unittest.TestCase):
         rb.bind(header)
 
         self.assertEqual(expected_transformed, rb.transform(record))
-
-
-class Test_RecordTransformer_process(unittest.TestCase):
-
-    def test_change_order(self):
-        reader = ReaderWriter()
-        reader.rows = [('a', 'b'), (1, 2)]
-        writer = ReaderWriter()
-
-        m.RecordTransformer('b,a').process(reader, writer)
-
-        self.assertEqual([('b', 'a'), (2, 1)], writer.rows)
-
-

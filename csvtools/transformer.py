@@ -3,10 +3,22 @@ from csvtools.field import NamedField
 
 class Transformer(object):
 
+    output_header = None
+
     def process(self, reader, writer):
+        reader_iter = iter(reader)
+        header = reader_iter.next()
+        self.bind(header)
+        transform = self.transform
+
+        writer.writerow(self.output_header)
+        for record in reader_iter:
+            writer.writerow(transform(record))
+
+    def bind(self, header_row):
         pass
 
-    def transform(self, input_row):
+    def transform(self, row):
         pass
 
 
@@ -26,19 +38,6 @@ class RecordTransformer(Transformer):
             (input_field_name, NamedField(input_field_name))
             for _out, input_field_name in self.parsed_spec)
 
-    def process(self, reader, writer):
-        reader_iter = iter(reader)
-        header = reader_iter.next()
-        self.bind(header)
-        transform = self.transform
-
-        writer.writerow(self.output_header)
-        for record in reader_iter:
-            writer.writerow(transform(record))
-
-    def transform(self, input_row):
-        return tuple(e(input_row) for e in self.extractors)
-
     def bind(self, header_row):
         for field in self.field_map.itervalues():
             field.initialize_from(header_row)
@@ -46,6 +45,9 @@ class RecordTransformer(Transformer):
         self.extractors = tuple(
             self.field_map[name].value_extractor
             for name in self.input_field_names)
+
+    def transform(self, input_row):
+        return tuple(e(input_row) for e in self.extractors)
 
     @property
     def output_header(self):
