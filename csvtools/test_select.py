@@ -1,21 +1,8 @@
 #! -*- encoding: utf8 -*-
 import unittest
 import csvtools.select as m
-from csvtools.test import ReaderWriter
 from StringIO import StringIO
 import csv
-
-
-class Test_process(unittest.TestCase):
-
-    def test_change_order(self):
-        reader = ReaderWriter()
-        reader.rows = [('a', 'b'), (1, 2)]
-        writer = ReaderWriter()
-
-        m.process(reader, writer, m.RecordTransformer('b,a'))
-
-        self.assertEqual([('b', 'a'), (2, 1)], writer.rows)
 
 
 class Test_select(unittest.TestCase):

@@ -13,7 +13,7 @@ Technically:
 '''
 
 import sys
-from csvtools.field import RecordTransformer
+from csvtools.transformer import RecordTransformer
 
 
 class MissingFieldError(Exception):
@@ -91,24 +91,10 @@ class Map(object):
         return self.transformer.output_header + tuple([self.ref_field_name])
 
 
-def process(input_file, output_file, map_file, map_fields, map_ref_field_name):
-    reader = csv.reader(input_file)
-    writer = csv.writer(output_file)
-    transformer = RecordTransformer(transform_spec)
-
-    header = reader.next()
-    transformer.bind(header)
-    transform = transformer.transform
-
-    writer.writerow(transformer.output_header)
-    for record in reader:
-        writer.writerow(transform(record))
-
-
 def main():
     map_file, map_fields, map_ref_field_name = sys.argv[1:]
 
-    process(sys.stdin, sys.stdout, map_file, map_fields, map_ref_field_name)
+    # process(sys.stdin, sys.stdout, map_file, map_fields, map_ref_field_name)
 
 
 

@@ -61,7 +61,7 @@ class Test_Map_translate(unittest.TestCase):
     def test_if_not_in_values_adds_new_value(self):
         map = self.fixture_aa_bb_with_aa1_bb1_1()
 
-        ref = map.translate((sentinel.aa_notin, sentinel.bb_notin))
+        map.translate((sentinel.aa_notin, sentinel.bb_notin))
 
         self.assertEqual(
             {
@@ -84,7 +84,7 @@ class Test_Map_translate(unittest.TestCase):
         map.modified = False
 
         previous_next_ref = map.next_ref
-        ref = map.translate((sentinel.aa_notin, sentinel.bb_notin))
+        map.translate((sentinel.aa_notin, sentinel.bb_notin))
 
         self.assertEqual(previous_next_ref + 1, map.next_ref)
 

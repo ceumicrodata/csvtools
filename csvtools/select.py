@@ -1,24 +1,12 @@
 import sys
 import csv
-from csvtools.field import RecordTransformer
-
-
-def process(reader, writer, transformer):
-    reader_iter = iter(reader)
-    header = reader_iter.next()
-    transformer.bind(header)
-    transform = transformer.transform
-
-    writer.writerow(transformer.output_header)
-    for record in reader_iter:
-        writer.writerow(transform(record))
+from csvtools.transformer import RecordTransformer
 
 
 def select(input_file, output_file, transform_spec):
     reader = csv.reader(input_file)
     writer = csv.writer(output_file)
-    transformer = RecordTransformer(transform_spec)
-    process(reader, writer, transformer)
+    RecordTransformer(transform_spec).process(reader, writer)
 
 
 def main():
