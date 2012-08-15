@@ -53,11 +53,9 @@ class RecordTransformer(Transformer):
 
     @property
     def output_field_names(self):
-        return tuple(out for (out, _) in self.field_maps)
+        return self.field_maps.output_field_names
 
     # helpers
     @property
     def input_field_names(self):
-        return tuple(
-            input_field_name
-            for (_, input_field_name) in self.field_maps)
+        return self.field_maps.input_field_names
