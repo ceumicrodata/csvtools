@@ -1,50 +1,94 @@
+'''
+Replace a set of fields with a reference to map.csv file rows
+
+Usage:
+extract_map map.csv map_fields_spec ref_field_spec
+
+Technically:
+- read original map from map.csv if that file exists
+- remove input side of map_fields_spec from input
+- append input side of ref_field_spec to input
+- write extended map to map.csv if changed
+
+'''
+
 import sys
 from csvtools.field import RecordTransformer
+
+
+class MissingFieldError(Exception):
+    pass
+
+class DuplicateValuesError(Exception):
+    pass
+
+class DuplicateRefsError(Exception):
+    pass
 
 
 class Map(object):
 
     modified = False
 
-    def __init__(self, map_file_name, map_fields, ref_field_name):
+    def __init__(self, map_fields, ref_field_name):
         self.transformer = RecordTransformer(map_fields)
         self.ref_field_name = ref_field_name
-        # self.values = dict()
-        self.max_ref = -1
+        self.values = dict()
+        self.next_ref = 0
 
-    def open_file(self, mode='r'):
-        pass
+    def read(self, reader):
+        rows = iter(reader)
 
-    def read(self):
-        # throws an exception if already bound
-        # throws an exception if fields in map read in does not match with the fields in binding
-        # throws an exception if map_fields is not unique
-        # throws an exception if ref_field_name is not unique
-        pass
+        header = rows.next()
+        if self.ref_field_name not in header:
+            raise MissingFieldError(self.ref_field_name)
+        for field_name in self.transformer.output_header:
+            if field_name not in header:
+                raise MissingFieldError(self.ref_field_name)
 
-    def write(self):
-        pass
+        input_fields = tuple([self.ref_field_name]) + self.transformer.output_header
+        map_transformer = RecordTransformer(','.join(input_fields))
+        map_transformer.bind(header)
 
-    def translate(self, input_tuple):
-        # calls add if new value, returns ref
-        # similar to dict.setdefault
-        pass
+        count = 0
+        values = dict()
+        for row in rows:
+            transformed_row = map_transformer.transform(row)
+            ref = transformed_row[0]
+            value = transformed_row[1:]
+            values[value] = ref
+
+            count += 1
+
+        if count != len(values):
+            raise DuplicateValuesError()
+        if count != len(set(values.values())):
+            raise DuplicateRefsError()
+
+        self.values = values
+        self.next_ref = max(values.values()) + 1
+
+    def write(self, writer):
+        header = tuple([self.ref_field_name]) + self.transformer.output_header
+        writer.writerow(header)
+
+        for (value, ref) in self.values.iteritems():
+            writer.writerow(tuple([ref]) + tuple(value))
+
+    def translate(self, input_row):
+        key = self.transformer.transform(input_row)
+        ref = self.values.setdefault(key, self.next_ref)
+        if ref == self.next_ref:
+            self.next_ref += 1
+            self.modified = True
+        return ref
 
     def bind(self, header):
         self.transformer.bind(header)
 
-    def add(self, input_tuple):
-        self.modified = True
-        self.max_ref += 1
-        # TODO: everything else
-
     @property
     def field_names(self):
         return self.transformer.output_header + tuple([self.ref_field_name])
-
-    @property
-    def next_ref(self):
-        return self.max_ref
 
 
 def process(input_file, output_file, map_file, map_fields, map_ref_field_name):
