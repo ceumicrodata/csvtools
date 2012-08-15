@@ -38,7 +38,7 @@ class RecordTransformer(Transformer):
         self.field_maps.parse_from(field_maps_string)
         self.input_fields = dict(
             (input_field_name, NamedField(input_field_name))
-            for _out, input_field_name in self.field_maps)
+            for input_field_name in self.input_field_names)
 
     def bind(self, header_row):
         for field in self.input_fields.itervalues():
