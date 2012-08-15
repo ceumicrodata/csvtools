@@ -30,15 +30,15 @@ class RecordTransformer(Transformer):
     .transform : creates a new tuple based on the input_row and the specs
     '''
 
-    parsed_spec = None
+    field_maps = None
     extractors = None
 
     def __init__(self, field_maps_string):
-        self.parsed_spec = FieldMaps()
-        self.parsed_spec.parse_from(field_maps_string)
+        self.field_maps = FieldMaps()
+        self.field_maps.parse_from(field_maps_string)
         self.input_fields = dict(
             (input_field_name, NamedField(input_field_name))
-            for _out, input_field_name in self.parsed_spec)
+            for _out, input_field_name in self.field_maps)
 
     def bind(self, header_row):
         for field in self.input_fields.itervalues():
@@ -53,11 +53,11 @@ class RecordTransformer(Transformer):
 
     @property
     def output_field_names(self):
-        return tuple(out for (out, _) in self.parsed_spec)
+        return tuple(out for (out, _) in self.field_maps)
 
     # helpers
     @property
     def input_field_names(self):
         return tuple(
             input_field_name
-            for (_, input_field_name) in self.parsed_spec)
+            for (_, input_field_name) in self.field_maps)
