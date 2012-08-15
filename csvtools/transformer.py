@@ -4,7 +4,7 @@ from csvtools.field_maps import FieldMaps
 
 class Transformer(object):
 
-    output_header = None
+    output_field_names = None
 
     def process(self, reader, writer):
         reader_iter = iter(reader)
@@ -12,7 +12,7 @@ class Transformer(object):
         self.bind(header)
         transform = self.transform
 
-        writer.writerow(self.output_header)
+        writer.writerow(self.output_field_names)
         for record in reader_iter:
             writer.writerow(transform(record))
 
@@ -26,7 +26,7 @@ class Transformer(object):
 class RecordTransformer(Transformer):
 
     '''
-    .output_header : tuple of field names in output
+    .output_field_names : tuple of field names in output
     .transform : creates a new tuple based on the input_row and the specs
     '''
 
@@ -52,7 +52,7 @@ class RecordTransformer(Transformer):
         return tuple(e(input_row) for e in self.extractors)
 
     @property
-    def output_header(self):
+    def output_field_names(self):
         return tuple(out for (out, _) in self.parsed_spec)
 
     # helpers

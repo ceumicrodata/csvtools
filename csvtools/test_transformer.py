@@ -8,7 +8,7 @@ import csvtools.transformer as m
 class BindCheckerTransformer(m.Transformer):
 
     bound = False
-    output_header = 'output_header'
+    output_field_names = 'output_field_names'
 
     def bind(self, header):
         self.bound = True
@@ -28,17 +28,17 @@ class Test_Transformer_process(unittest.TestCase):
 
         BindCheckerTransformer().process(reader, writer)
 
-    def test_header_is_output_header(self):
+    def test_header_is_output_field_names(self):
         reader = ReaderWriter()
         reader.rows = [('a', 'b')]
         writer = ReaderWriter()
 
         t = m.Transformer()
-        t.output_header = sentinel.output_header
+        t.output_field_names = sentinel.output_field_names
 
         t.process(reader, writer)
 
-        self.assertEqual([sentinel.output_header], writer.rows)
+        self.assertEqual([sentinel.output_field_names], writer.rows)
 
     def test_content_is_produced_by_process(self):
         reader = ReaderWriter()
@@ -53,10 +53,10 @@ class Test_Transformer_process(unittest.TestCase):
         self.assertEqual([sentinel.output, sentinel.output], writer.rows[1:])
 
 
-class Test_RecordTransformer_output_header(unittest.TestCase):
+class Test_RecordTransformer_output_field_names(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(('out1', 'a', 'b'), m.RecordTransformer('out1=in1,a,b').output_header)
+        self.assertEqual(('out1', 'a', 'b'), m.RecordTransformer('out1=in1,a,b').output_field_names)
 
 
 class Test_RecordTransformer_input_field_names(unittest.TestCase):

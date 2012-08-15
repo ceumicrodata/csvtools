@@ -42,11 +42,11 @@ class Map(object):
         header = rows.next()
         if self.ref_field_name not in header:
             raise MissingFieldError(self.ref_field_name)
-        for field_name in self.transformer.output_header:
+        for field_name in self.transformer.output_field_names:
             if field_name not in header:
                 raise MissingFieldError(self.ref_field_name)
 
-        input_fields = tuple([self.ref_field_name]) + self.transformer.output_header
+        input_fields = tuple([self.ref_field_name]) + self.transformer.output_field_names
         map_transformer = RecordTransformer(','.join(input_fields))
         map_transformer.bind(header)
 
@@ -69,7 +69,7 @@ class Map(object):
         self.next_ref = max(values.values()) + 1
 
     def write(self, writer):
-        header = tuple([self.ref_field_name]) + self.transformer.output_header
+        header = tuple([self.ref_field_name]) + self.transformer.output_field_names
         writer.writerow(header)
 
         for (value, ref) in self.values.iteritems():
@@ -88,7 +88,7 @@ class Map(object):
 
     @property
     def field_names(self):
-        return self.transformer.output_header + tuple([self.ref_field_name])
+        return self.transformer.output_field_names + tuple([self.ref_field_name])
 
 
 def main():

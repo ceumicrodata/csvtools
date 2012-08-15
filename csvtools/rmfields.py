@@ -11,7 +11,6 @@ import csv
 from csvtools.transformer import Transformer, RecordTransformer
 
 
-
 class RemoveFields(Transformer):
 
     def __init__(self, fields_to_remove):
@@ -19,11 +18,11 @@ class RemoveFields(Transformer):
         self.transformer = None
 
     def bind(self, header):
-        self.output_header = tuple(
+        self.output_field_names = tuple(
             field_name
             for field_name in header
             if field_name not in self.fields_to_remove)
-        self.transformer = RecordTransformer(','.join(self.output_header))
+        self.transformer = RecordTransformer(','.join(self.output_field_names))
         self.transformer.bind(header)
 
     @property
