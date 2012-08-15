@@ -23,7 +23,7 @@ class Transformer(object):
         pass
 
 
-class RecordTransformer(Transformer):
+class SimpleTransformer(Transformer):
 
     '''
     .output_field_names : tuple of field names in output

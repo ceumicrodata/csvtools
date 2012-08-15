@@ -1,12 +1,12 @@
 import sys
 import csv
-from csvtools.transformer import RecordTransformer
+from csvtools.transformer import SimpleTransformer
 
 
 def select(input_file, output_file, transform_spec):
     reader = csv.reader(input_file)
     writer = csv.writer(output_file)
-    RecordTransformer(transform_spec).process(reader, writer)
+    SimpleTransformer(transform_spec).process(reader, writer)
 
 
 def main():

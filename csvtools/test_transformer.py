@@ -53,22 +53,22 @@ class Test_Transformer_process(unittest.TestCase):
         self.assertEqual([sentinel.output, sentinel.output], writer.rows[1:])
 
 
-class Test_RecordTransformer_output_field_names(unittest.TestCase):
+class Test_SimpleTransformer_output_field_names(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(('out1', 'a', 'b'), m.RecordTransformer('out1=in1,a,b').output_field_names)
+        self.assertEqual(('out1', 'a', 'b'), m.SimpleTransformer('out1=in1,a,b').output_field_names)
 
 
-class Test_RecordTransformer_input_field_names(unittest.TestCase):
+class Test_SimpleTransformer_input_field_names(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(('in1', 'a', 'b'), m.RecordTransformer('out1=in1,a,b').input_field_names)
+        self.assertEqual(('in1', 'a', 'b'), m.SimpleTransformer('out1=in1,a,b').input_field_names)
 
 
-class Test_RecordTransformer_bind(unittest.TestCase):
+class Test_SimpleTransformer_bind(unittest.TestCase):
 
     def test_sets_extractors(self):
-        rb = m.RecordTransformer('out1=in1,a,b')
+        rb = m.SimpleTransformer('out1=in1,a,b')
 
         rb.bind(('a', 'in1', 'b'))
 
@@ -77,7 +77,7 @@ class Test_RecordTransformer_bind(unittest.TestCase):
         self.assertEqual('b', rb.extractors[2](('a', 'in1', 'b')))
 
 
-class Test_RecordTransformer_transform(unittest.TestCase):
+class Test_SimpleTransformer_transform(unittest.TestCase):
 
     def test(self):
         header = ('a', 'aa', 'b', 'c')
@@ -85,7 +85,7 @@ class Test_RecordTransformer_transform(unittest.TestCase):
 
         expected_transformed = (sentinel.c, sentinel.b, sentinel.aa)
 
-        rb = m.RecordTransformer('c,b,a=aa')
+        rb = m.SimpleTransformer('c,b,a=aa')
 
         rb.bind(header)
 

@@ -13,7 +13,7 @@ Technically:
 '''
 
 import sys
-from csvtools.transformer import RecordTransformer
+from csvtools.transformer import SimpleTransformer
 
 
 class MissingFieldError(Exception):
@@ -30,8 +30,8 @@ class Map(object):
 
     modified = False
 
-    def __init__(self, map_fields, ref_field_name):
-        self.transformer = RecordTransformer(map_fields)
+    def __init__(self, map_fields_map, ref_field_name):
+        self.transformer = SimpleTransformer(map_fields_map)
         self.ref_field_name = ref_field_name
         self.values = dict()
         self.next_ref = 0
@@ -47,7 +47,7 @@ class Map(object):
                 raise MissingFieldError(self.ref_field_name)
 
         input_fields = tuple([self.ref_field_name]) + self.transformer.output_field_names
-        map_transformer = RecordTransformer(','.join(input_fields))
+        map_transformer = SimpleTransformer(','.join(input_fields))
         map_transformer.bind(header)
 
         count = 0

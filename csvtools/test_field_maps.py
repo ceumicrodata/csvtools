@@ -37,7 +37,7 @@ class Test_field_maps_output_field_names(unittest.TestCase):
         self.assertEqual(('out1', 'a', 'b'), fm.output_field_names)
 
 
-class Test_RecordTransformer_input_field_names(unittest.TestCase):
+class Test_SimpleTransformer_input_field_names(unittest.TestCase):
 
     def test(self):
         fm =m.FieldMaps()

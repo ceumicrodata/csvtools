@@ -8,7 +8,7 @@ rmfields.py field_name [field_name [...]]
 
 import sys
 import csv
-from csvtools.transformer import Transformer, RecordTransformer
+from csvtools.transformer import Transformer, SimpleTransformer
 
 
 class RemoveFields(Transformer):
@@ -22,7 +22,7 @@ class RemoveFields(Transformer):
             field_name
             for field_name in header
             if field_name not in self.fields_to_remove)
-        self.transformer = RecordTransformer(','.join(self.output_field_names))
+        self.transformer = SimpleTransformer(','.join(self.output_field_names))
         self.transformer.bind(header)
 
     @property
