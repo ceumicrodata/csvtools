@@ -5,6 +5,7 @@ import csvtools.field_maps as m
 def fm2out_in(fm):
     return tuple((f.output_field_name, f.input_field_name) for f in fm)
 
+
 class Test_FieldMaps_parse_from(unittest.TestCase):
 
     def test_only_one_output_field_input_defaults_to_output(self):

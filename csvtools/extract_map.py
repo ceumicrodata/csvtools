@@ -14,6 +14,7 @@ Technically:
 
 import sys
 from csvtools.transformer import SimpleTransformer
+from csvtools.field_maps import FieldMaps
 
 
 class MissingFieldError(Exception):
@@ -30,8 +31,8 @@ class Map(object):
 
     modified = False
 
-    def __init__(self, map_fields_map, ref_field_name):
-        self.transformer = SimpleTransformer(map_fields_map)
+    def __init__(self, map_field_maps, ref_field_name):
+        self.transformer = SimpleTransformer(map_field_maps)
         self.ref_field_name = ref_field_name
         self.values = dict()
         self.next_ref = 0
@@ -46,8 +47,11 @@ class Map(object):
             if field_name not in header:
                 raise MissingFieldError(self.ref_field_name)
 
-        input_fields = tuple([self.ref_field_name]) + self.transformer.output_field_names
-        map_transformer = SimpleTransformer(','.join(input_fields))
+        input_field_names = tuple([self.ref_field_name]) + self.transformer.output_field_names
+        field_maps = FieldMaps()
+        for input_field_name in input_field_names:
+            field_maps.add(input_field_name, input_field_name)
+        map_transformer = SimpleTransformer(field_maps)
         map_transformer.bind(header)
 
         count = 0

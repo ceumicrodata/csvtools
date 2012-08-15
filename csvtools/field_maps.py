@@ -1,11 +1,19 @@
+from csvtools.field import NamedField
+
+
 class FieldMap(object):
 
     input_field_name = None
     output_field_name = None
+    extractor_field = None
 
-    def __init__(self, input_field_name, output_field_name):
+    def __init__(self, input_field_name, output_field_name, extractor_field=None):
         self.input_field_name = input_field_name
         self.output_field_name = output_field_name
+        if extractor_field:
+            self.extractor_field = extractor_field
+        else:
+            self.extractor_field = NamedField(input_field_name)
 
 
 class FieldMaps(object):
@@ -21,11 +29,8 @@ class FieldMaps(object):
             self.parse_field_map_string(field_spec)
             for field_spec in field_maps_string.split(','))
 
-    def add(self, input_field_name, output_field_name):
-        pass
-
-    def remove_by_input_field_name(self, input_field_name):
-        pass
+    def add(self, input_field_name, output_field_name, extractor_field=None):
+        self.field_maps.append(FieldMap(input_field_name, output_field_name, extractor_field))
 
     def __iter__(self):
         return iter(self.field_maps)

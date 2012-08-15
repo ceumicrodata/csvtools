@@ -1,12 +1,15 @@
 import sys
 import csv
 from csvtools.transformer import SimpleTransformer
+from csvtools.field_maps import FieldMaps
 
 
 def select(input_file, output_file, transform_spec):
     reader = csv.reader(input_file)
     writer = csv.writer(output_file)
-    SimpleTransformer(transform_spec).process(reader, writer)
+    field_maps = FieldMaps()
+    field_maps.parse_from(transform_spec)
+    SimpleTransformer(field_maps).process(reader, writer)
 
 
 def main():

@@ -2,20 +2,20 @@ import unittest
 import mock
 from mock import sentinel
 from csvtools.test import ReaderWriter
+from csvtools.field_maps import FieldMaps
 import csvtools.extract_map as m
 
 
-def mmap():
-    # mocked out Map - will not write to fs
-    map = m.Map('', 'id')
-    map.write = mock.Mock()
-    return map
+def make_map(field_maps_spec, ref_field_name):
+    field_maps = FieldMaps()
+    field_maps.parse_from(field_maps_spec)
+    return m.Map(field_maps, ref_field_name)
 
 
 class Test_Map_field_names(unittest.TestCase):
 
     def test(self):
-        map = m.Map('a,b', 'id')
+        map = make_map('a,b', 'id')
 
         self.assertEqual(set(('a', 'b', 'id')), set(map.field_names))
 
@@ -23,7 +23,7 @@ class Test_Map_field_names(unittest.TestCase):
 class Test_Map_bind(unittest.TestCase):
 
     def test_binds_the_internal_transformer(self):
-        map = m.Map('a,b', 'id')
+        map = make_map('a,b', 'id')
 
         map.bind(('a', 'b', 'c'))
 
@@ -33,7 +33,7 @@ class Test_Map_bind(unittest.TestCase):
 class Test_Map_translate(unittest.TestCase):
 
     def test_uses_internal_transformer(self):
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
         map.transformer = mock.Mock()
         map.transformer.transform = mock.Mock(return_value=(sentinel.aa1, sentinel.bb1))
 
@@ -48,7 +48,7 @@ class Test_Map_translate(unittest.TestCase):
         self.assertEqual(sentinel.ref1, ref)
 
     def fixture_aa_bb_with_aa1_bb1_1(self):
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
         map.bind(('aa', 'bb'))
 
         map.values = {
@@ -113,7 +113,7 @@ class Test_Map_translate(unittest.TestCase):
         self.assertFalse(map.modified)
 
     def test_empty_map(self):
-        map = m.Map('aa', 'id')
+        map = make_map('aa', 'id')
         map.bind(['aa'])
 
         map.translate([sentinel.new])
@@ -124,7 +124,7 @@ class Test_Map_translate(unittest.TestCase):
 class Test_Map_write(unittest.TestCase):
 
     def test_header(self):
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
 
         writer = ReaderWriter()
         map.write(writer)
@@ -132,7 +132,7 @@ class Test_Map_write(unittest.TestCase):
         self.assertEqual([('id', 'aa', 'bb')], writer.rows)
 
     def test_content(self):
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
         map.values = {
             (sentinel.aa1, sentinel.bb1): sentinel.ref1,
             (sentinel.aa2, sentinel.bb2): sentinel.ref2
@@ -151,7 +151,7 @@ class Test_Map_read(unittest.TestCase):
     header = ('id', 'aa', 'bb')
 
     def write_aa1_aa2_88(self, writer):
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
         map.values = {
             (sentinel.aa1, sentinel.bb1): 88,
             (sentinel.aa2, sentinel.bb2): 19
@@ -162,7 +162,7 @@ class Test_Map_read(unittest.TestCase):
         rw = ReaderWriter()
         self.write_aa1_aa2_88(rw)
 
-        newmap = m.Map('aa,bb', 'id')
+        newmap = make_map('aa,bb', 'id')
         newmap.read(rw)
 
         self.assertEqual(
@@ -176,7 +176,7 @@ class Test_Map_read(unittest.TestCase):
         rw = ReaderWriter()
         self.write_aa1_aa2_88(rw)
 
-        newmap = m.Map('aa,bb', 'id')
+        newmap = make_map('aa,bb', 'id')
         newmap.read(rw)
 
         self.assertEqual(89, newmap.next_ref)
@@ -185,7 +185,7 @@ class Test_Map_read(unittest.TestCase):
         rw = ReaderWriter()
         self.write_aa1_aa2_88(rw)
 
-        newmap = m.Map('bb,aa', 'id')
+        newmap = make_map('bb,aa', 'id')
         newmap.read(rw)
 
         self.assertEqual(
@@ -198,27 +198,27 @@ class Test_Map_read(unittest.TestCase):
     def test_refs_not_unique_dies(self):
         reader = ReaderWriter()
         reader.rows = [self.header, (1, 1, 1), (1, 2, 2)]
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
 
         self.assertRaises(Exception, lambda: map.read(reader))
 
     def test_valuess_not_unique_dies(self):
         reader = ReaderWriter()
         reader.rows = [self.header, (1, 1, 1), (2, 1, 1)]
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
 
         self.assertRaises(Exception, lambda: map.read(reader))
 
     def test_missing_ref_field(self):
         reader = ReaderWriter()
         reader.rows = [('aa', 'bb')]
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
 
         self.assertRaises(Exception, lambda: map.read(reader))
 
     def test_missing_value_field(self):
         reader = ReaderWriter()
         reader.rows = [('id', 'bb')]
-        map = m.Map('aa,bb', 'id')
+        map = make_map('aa,bb', 'id')
 
         self.assertRaises(Exception, lambda: map.read(reader))

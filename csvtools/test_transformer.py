@@ -3,6 +3,7 @@ import mock
 from mock import sentinel
 from csvtools.test import ReaderWriter
 import csvtools.transformer as m
+from csvtools.field_maps import FieldMaps
 
 
 class BindCheckerTransformer(m.Transformer):
@@ -53,22 +54,28 @@ class Test_Transformer_process(unittest.TestCase):
         self.assertEqual([sentinel.output, sentinel.output], writer.rows[1:])
 
 
+def simple_transformer(field_maps_string):
+    field_maps = FieldMaps()
+    field_maps.parse_from(field_maps_string)
+    return m.SimpleTransformer(field_maps)
+
+
 class Test_SimpleTransformer_output_field_names(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(('out1', 'a', 'b'), m.SimpleTransformer('out1=in1,a,b').output_field_names)
+        self.assertEqual(('out1', 'a', 'b'), simple_transformer('out1=in1,a,b').output_field_names)
 
 
 class Test_SimpleTransformer_input_field_names(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(('in1', 'a', 'b'), m.SimpleTransformer('out1=in1,a,b').input_field_names)
+        self.assertEqual(('in1', 'a', 'b'), simple_transformer('out1=in1,a,b').input_field_names)
 
 
 class Test_SimpleTransformer_bind(unittest.TestCase):
 
     def test_sets_extractors(self):
-        rb = m.SimpleTransformer('out1=in1,a,b')
+        rb = simple_transformer('out1=in1,a,b')
 
         rb.bind(('a', 'in1', 'b'))
 
@@ -85,7 +92,7 @@ class Test_SimpleTransformer_transform(unittest.TestCase):
 
         expected_transformed = (sentinel.c, sentinel.b, sentinel.aa)
 
-        rb = m.SimpleTransformer('c,b,a=aa')
+        rb = simple_transformer('c,b,a=aa')
 
         rb.bind(header)
 

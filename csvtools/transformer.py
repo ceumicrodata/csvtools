@@ -1,8 +1,9 @@
-from csvtools.field import NamedField
-from csvtools.field_maps import FieldMaps
-
-
 class Transformer(object):
+
+    '''
+    .output_field_names : tuple of field names, output header
+    .transform : creates a new tuple based on the input_row and the specs
+    '''
 
     output_field_names = None
 
@@ -25,27 +26,21 @@ class Transformer(object):
 
 class SimpleTransformer(Transformer):
 
-    '''
-    .output_field_names : tuple of field names in output
-    .transform : creates a new tuple based on the input_row and the specs
-    '''
-
     field_maps = None
     extractors = None
 
-    def __init__(self, field_maps_string):
-        self.field_maps = FieldMaps()
-        self.field_maps.parse_from(field_maps_string)
-        self.input_fields = dict(
-            (input_field_name, NamedField(input_field_name))
-            for input_field_name in self.input_field_names)
+    def __init__(self, field_maps):
+        self.field_maps = field_maps
+        self.fields = dict(
+            (field_map.input_field_name, field_map.extractor_field)
+            for field_map in self.field_maps)
 
     def bind(self, header_row):
-        for field in self.input_fields.itervalues():
+        for field in self.fields.itervalues():
             field.bind(header_row)
 
         self.extractors = tuple(
-            self.input_fields[name].value_extractor
+            self.fields[name].value_extractor
             for name in self.input_field_names)
 
     def transform(self, input_row):
