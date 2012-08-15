@@ -12,10 +12,12 @@ Technically:
 
 '''
 
+import os.path
 import sys
 from csvtools.transformer import Transformer, SimpleTransformer
 from csvtools.field_maps import FieldMaps
 from csvtools.field import Field
+import csv
 
 
 class MissingFieldError(Exception):
@@ -49,6 +51,7 @@ class Map(object):
                 raise MissingFieldError(self.ref_field_name)
 
         input_field_names = tuple([self.ref_field_name]) + self.transformer.output_field_names
+        # first field is ID
         field_maps = FieldMaps()
         for input_field_name in input_field_names:
             field_maps.add(input_field_name, input_field_name)
@@ -59,7 +62,7 @@ class Map(object):
         values = dict()
         for row in rows:
             transformed_row = map_transformer.transform(row)
-            ref = transformed_row[0]
+            ref = int(transformed_row[0])
             value = transformed_row[1:]
             values[value] = ref
 
@@ -140,6 +143,16 @@ class ExtractMap(Transformer):
         self.transformer = SimpleTransformer(field_maps)
         self.transformer.bind(header)
 
+    def read_map(self, reader):
+        self.map.read(reader)
+
+    def write_map(self, writer):
+        self.map.write(writer)
+
+    @property
+    def map_changed(self):
+        return self.map.changed
+
     @property
     def output_field_names(self):
         return self.transformer.output_field_names
@@ -149,11 +162,25 @@ class ExtractMap(Transformer):
         return self.transformer.transform
 
 
+def extract_map(reader, writer, map_file, map_fields_spec, ref_field_spec):
+    transformer = ExtractMap(map_fields_spec, ref_field_spec)
+
+    if os.path.exists(map_file):
+        with open(map_file) as f:
+            transformer.read_map(csv.reader(f))
+
+    transformer.process(reader, writer)
+
+    if transformer.map_changed:
+        with open(map_file, 'w') as f:
+            transformer.write_map(csv.writer(f))
+
+
 def main():
-    map_file, map_fields, map_ref_field = sys.argv[1:]
-
-    # process(sys.stdin, sys.stdout, map_file, map_fields, map_ref_field_name)
-
+    reader = csv.reader(sys.stdin)
+    writer = csv.writer(sys.stdout)
+    map_file, map_fields, ref_field = sys.argv[1:]
+    extract_map(reader, writer, map_file, map_fields, ref_field)
 
 
 if __name__ == '__main__':
