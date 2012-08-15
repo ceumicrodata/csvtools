@@ -13,8 +13,9 @@ Technically:
 '''
 
 import sys
-from csvtools.transformer import SimpleTransformer
+from csvtools.transformer import Transformer, SimpleTransformer
 from csvtools.field_maps import FieldMaps
+from csvtools.field import Field
 
 
 class MissingFieldError(Exception):
@@ -95,8 +96,61 @@ class Map(object):
         return self.transformer.output_field_names + tuple([self.ref_field_name])
 
 
+class RefField(Field):
+
+    def __init__(self, map):
+        self.map = map
+
+    def bind(self, header):
+        self.map.bind(header)
+
+    def value_extractor(self, input_row):
+        return self.map.translate(input_row)
+
+
+class ExtractMap(Transformer):
+
+    def __init__(self, map_fields_spec, ref_field_spec):
+        field_maps = FieldMaps()
+        field_maps.parse_from(map_fields_spec)
+        self.fields_to_remove = field_maps.input_field_names
+
+        # TODO: this is ugly, beautify
+        ref_field_map = FieldMaps().parse_field_map_string(ref_field_spec)
+
+        self.map = Map(field_maps, ref_field_map.output_field_name)
+        self.ref_field_name = ref_field_map.input_field_name
+        self.transformer = None
+
+    def bind(self, header):
+        # TODO: DRY, this part is copied from RemoveFields, except for adding the ref field
+        input_fields_to_keep = tuple(
+            field_name
+            for field_name in header
+            if field_name not in self.fields_to_remove)
+
+        field_maps = FieldMaps()
+        for field_name in input_fields_to_keep:
+            field_maps.add(field_name, field_name)
+        field_maps.add(
+            input_field_name=None,
+            output_field_name=self.ref_field_name,
+            extractor_field=RefField(self.map))
+
+        self.transformer = SimpleTransformer(field_maps)
+        self.transformer.bind(header)
+
+    @property
+    def output_field_names(self):
+        return self.transformer.output_field_names
+
+    @property
+    def transform(self):
+        return self.transformer.transform
+
+
 def main():
-    map_file, map_fields, map_ref_field_name = sys.argv[1:]
+    map_file, map_fields, map_ref_field_name_map = sys.argv[1:]
 
     # process(sys.stdin, sys.stdout, map_file, map_fields, map_ref_field_name)
 

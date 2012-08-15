@@ -222,3 +222,106 @@ class Test_Map_read(unittest.TestCase):
         map = make_map('aa,bb', 'id')
 
         self.assertRaises(Exception, lambda: map.read(reader))
+
+
+class Test_RefField(unittest.TestCase):
+
+    def test_ref(self):
+        map = make_map('aamap=aamain,bbmap=bbmain', 'idmap')
+        map.next_ref = 100
+        f = m.RefField(map)
+        f.bind(('aamain', 'bbmain', 'ccmain'))
+
+        ref = f.value_extractor((sentinel.aa, sentinel.bb, sentinel.cc))
+
+        self.assertEqual(100, ref)
+
+    def test_map_content(self):
+        map = make_map('aamap=aamain,bbmap=bbmain', 'idmap')
+        map.next_ref = 100
+        f = m.RefField(map)
+        f.bind(('aamain', 'bbmain', 'ccmain'))
+
+        f.value_extractor((sentinel.aa, sentinel.bb, sentinel.cc))
+
+        writer = ReaderWriter()
+        map.write(writer)
+        self.assertEqual([('idmap', 'aamap', 'bbmap'), (100, sentinel.aa, sentinel.bb)], writer.rows)
+
+
+class Test_ExtractMap_process(unittest.TestCase):
+
+    def test_output_header(self):
+        reader = ReaderWriter()
+        reader.rows = [
+            ('aa', 'bb', 'cc', 'dd'),
+            ]
+        writer = ReaderWriter()
+
+        m.ExtractMap('b=bb,c=cc', 'a=id').process(reader, writer)
+
+        self.assertEqual(
+            [('aa', 'dd', 'id')],
+            writer.rows)
+
+    def test_output_values(self):
+        reader = ReaderWriter()
+        reader.rows = [
+            ('aa', 'bb', 'cc', 'dd'),
+            (sentinel.aa1, sentinel.bb1, sentinel.cc1, sentinel.dd1),
+            (sentinel.aa2, sentinel.bb2, sentinel.cc2, sentinel.dd2),
+            (sentinel.aa3, sentinel.bb1, sentinel.cc1, sentinel.dd3),
+            ]
+        writer = ReaderWriter()
+
+        m.ExtractMap('b=bb,c=cc', 'a=id').process(reader, writer)
+
+        self.assertEqual(
+            sorted([
+                (sentinel.aa1, sentinel.dd1, 0),
+                (sentinel.aa2, sentinel.dd2, 1),
+                (sentinel.aa3, sentinel.dd3, 0),
+                ]),
+            sorted(writer.rows[1:]))
+
+    def test_map_header(self):
+        reader = ReaderWriter()
+        reader.rows = [
+            ('aa', 'bb', 'cc', 'dd'),
+            ]
+        writer = ReaderWriter()
+
+        extract_map = m.ExtractMap('b=bb,c=cc', 'a=id')
+        extract_map.process(reader, writer)
+
+        map_writer = ReaderWriter()
+        extract_map.map.write(map_writer)
+
+        # all fields renamed, id comes first - for sorting?
+        self.assertEqual(
+            [('a', 'b', 'c')],
+            map_writer.rows)
+
+    def test_map_content(self):
+        reader = ReaderWriter()
+        reader.rows = [
+            ('aa', 'bb', 'cc', 'dd'),
+            (sentinel.aa1, sentinel.bb1, sentinel.cc1, sentinel.dd1),
+            (sentinel.aa2, sentinel.bb2, sentinel.cc2, sentinel.dd2),
+            (sentinel.aa3, sentinel.bb1, sentinel.cc1, sentinel.dd3),
+            ]
+        writer = ReaderWriter()
+
+        extract_map = m.ExtractMap('b=bb,c=cc', 'a=id')
+        extract_map.process(reader, writer)
+
+        map_writer = ReaderWriter()
+        extract_map.map.write(map_writer)
+
+        # all fields renamed, id comes first - for sorting?
+        self.assertEqual(
+            sorted([
+                (0, sentinel.bb1, sentinel.cc1),
+                (1, sentinel.bb2, sentinel.cc2),
+                ]),
+            sorted(map_writer.rows[1:]))
