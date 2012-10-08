@@ -33,7 +33,7 @@ class Test_FieldMaps_parse_from(unittest.TestCase):
 class Test_field_maps_output_field_names(unittest.TestCase):
 
     def test(self):
-        fm =m.FieldMaps()
+        fm = m.FieldMaps()
         fm.parse_from('out1=in1,a,b')
         self.assertEqual(('out1', 'a', 'b'), fm.output_field_names)
 
@@ -41,6 +41,6 @@ class Test_field_maps_output_field_names(unittest.TestCase):
 class Test_SimpleTransformer_input_field_names(unittest.TestCase):
 
     def test(self):
-        fm =m.FieldMaps()
+        fm = m.FieldMaps()
         fm.parse_from('out1=in1,a,b')
         self.assertEqual(('in1', 'a', 'b'), fm.input_field_names)
