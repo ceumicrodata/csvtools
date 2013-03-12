@@ -23,8 +23,10 @@ import csv
 class MissingFieldError(Exception):
     pass
 
+
 class DuplicateValuesError(Exception):
     pass
+
 
 class DuplicateRefsError(Exception):
     pass
@@ -50,10 +52,9 @@ class Map(object):
             if field_name not in header:
                 raise MissingFieldError(self.ref_field_name)
 
-        input_field_names = tuple([self.ref_field_name]) + self.transformer.output_field_names
         # first field is ID
         field_maps = FieldMaps()
-        for input_field_name in input_field_names:
+        for input_field_name in self.field_names:
             field_maps.add(input_field_name, input_field_name)
         map_transformer = SimpleTransformer(field_maps)
         map_transformer.bind(header)
@@ -77,8 +78,7 @@ class Map(object):
         self.next_ref = max(values.values()) + 1
 
     def write(self, writer):
-        header = tuple([self.ref_field_name]) + self.transformer.output_field_names
-        writer.writerow(header)
+        writer.writerow(self.field_names)
 
         for (value, ref) in self.values.iteritems():
             writer.writerow(tuple([ref]) + tuple(value))
@@ -96,7 +96,9 @@ class Map(object):
 
     @property
     def field_names(self):
-        return self.transformer.output_field_names + tuple([self.ref_field_name])
+        return (
+            tuple([self.ref_field_name])
+            + self.transformer.output_field_names)
 
 
 class RefField(Field):
@@ -126,7 +128,9 @@ class ExtractMap(Transformer):
         self.transformer = None
 
     def bind(self, header):
-        # TODO: DRY, this part is copied from RemoveFields, except for adding the ref field (extract common stuff into ProxyTransformer?)
+        # TODO: DRY: copied from RemoveFields
+        # except for adding the ref field
+        # (extract common stuff into ProxyTransformer?)
         input_fields_to_keep = tuple(
             field_name
             for field_name in header
