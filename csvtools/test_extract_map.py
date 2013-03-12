@@ -31,7 +31,8 @@ class Test_Map_bind(unittest.TestCase):
 
         map.bind(('a', 'b', 'c'))
 
-        self.assertEqual(('a', 'b'), map.transformer.transform(('a', 'b', 'c')))
+        self.assertEqual(
+            ('a', 'b'), map.transformer.transform(('a', 'b', 'c')))
 
 
 class Test_Map_translate(unittest.TestCase):
@@ -39,7 +40,8 @@ class Test_Map_translate(unittest.TestCase):
     def test_uses_internal_transformer(self):
         map = make_map('aa,bb', 'id')
         map.transformer = mock.Mock()
-        map.transformer.transform = mock.Mock(return_value=(sentinel.aa1, sentinel.bb1))
+        map.transformer.transform = (
+            mock.Mock(return_value=(sentinel.aa1, sentinel.bb1)))
 
         map.values = {
             (sentinel.aa1, sentinel.bb1): sentinel.ref1,
@@ -146,8 +148,10 @@ class Test_Map_write(unittest.TestCase):
         map.write(writer)
 
         self.assertEqual(
-            sorted([(sentinel.ref1, sentinel.aa1, sentinel.bb1),
-            (sentinel.ref2, sentinel.aa2, sentinel.bb2)]), sorted(writer.rows[1:]))
+            sorted([
+                (sentinel.ref1, sentinel.aa1, sentinel.bb1),
+                (sentinel.ref2, sentinel.aa2, sentinel.bb2)]),
+            sorted(writer.rows[1:]))
 
 
 class Test_Map_read(unittest.TestCase):
@@ -171,8 +175,8 @@ class Test_Map_read(unittest.TestCase):
 
         self.assertEqual(
             {
-            (sentinel.aa1, sentinel.bb1): 88,
-            (sentinel.aa2, sentinel.bb2): 19
+                (sentinel.aa1, sentinel.bb1): 88,
+                (sentinel.aa2, sentinel.bb2): 19
             },
             newmap.values)
 
@@ -194,8 +198,8 @@ class Test_Map_read(unittest.TestCase):
 
         self.assertEqual(
             {
-            (sentinel.bb1, sentinel.aa1): 88,
-            (sentinel.bb2, sentinel.aa2): 19
+                (sentinel.bb1, sentinel.aa1): 88,
+                (sentinel.bb2, sentinel.aa2): 19
             },
             newmap.values)
 
@@ -207,9 +211,7 @@ class Test_Map_read(unittest.TestCase):
         newmap.read(rw)
 
         self.assertEqual(
-            {
-            ('one',): 1,
-            },
+            {('one',): 1},
             newmap.values)
 
     def test_refs_not_unique_dies(self):
@@ -263,16 +265,16 @@ class Test_RefField(unittest.TestCase):
 
         writer = ReaderWriter()
         map.write(writer)
-        self.assertEqual([('idmap', 'aamap', 'bbmap'), (100, sentinel.aa, sentinel.bb)], writer.rows)
+        self.assertEqual(
+            [('idmap', 'aamap', 'bbmap'), (100, sentinel.aa, sentinel.bb)],
+            writer.rows)
 
 
 class Test_ExtractMap_process(unittest.TestCase):
 
     def test_output_header(self):
         reader = ReaderWriter()
-        reader.rows = [
-            ('aa', 'bb', 'cc', 'dd'),
-            ]
+        reader.rows = [('aa', 'bb', 'cc', 'dd')]
         writer = ReaderWriter()
 
         m.ExtractMap('b=bb,c=cc', 'a=id').process(reader, writer)
@@ -287,8 +289,7 @@ class Test_ExtractMap_process(unittest.TestCase):
             ('aa', 'bb', 'cc', 'dd'),
             (sentinel.aa1, sentinel.bb1, sentinel.cc1, sentinel.dd1),
             (sentinel.aa2, sentinel.bb2, sentinel.cc2, sentinel.dd2),
-            (sentinel.aa3, sentinel.bb1, sentinel.cc1, sentinel.dd3),
-            ]
+            (sentinel.aa3, sentinel.bb1, sentinel.cc1, sentinel.dd3), ]
         writer = ReaderWriter()
 
         m.ExtractMap('b=bb,c=cc', 'a=id').process(reader, writer)
@@ -297,15 +298,12 @@ class Test_ExtractMap_process(unittest.TestCase):
             sorted([
                 (sentinel.aa1, sentinel.dd1, 0),
                 (sentinel.aa2, sentinel.dd2, 1),
-                (sentinel.aa3, sentinel.dd3, 0),
-                ]),
+                (sentinel.aa3, sentinel.dd3, 0), ]),
             sorted(writer.rows[1:]))
 
     def test_map_header(self):
         reader = ReaderWriter()
-        reader.rows = [
-            ('aa', 'bb', 'cc', 'dd'),
-            ]
+        reader.rows = [('aa', 'bb', 'cc', 'dd'), ]
         writer = ReaderWriter()
 
         extract_map = m.ExtractMap('b=bb,c=cc', 'a=id')
@@ -325,8 +323,7 @@ class Test_ExtractMap_process(unittest.TestCase):
             ('aa', 'bb', 'cc', 'dd'),
             (sentinel.aa1, sentinel.bb1, sentinel.cc1, sentinel.dd1),
             (sentinel.aa2, sentinel.bb2, sentinel.cc2, sentinel.dd2),
-            (sentinel.aa3, sentinel.bb1, sentinel.cc1, sentinel.dd3),
-            ]
+            (sentinel.aa3, sentinel.bb1, sentinel.cc1, sentinel.dd3), ]
         writer = ReaderWriter()
 
         extract_map = m.ExtractMap('b=bb,c=cc', 'a=id')
@@ -339,8 +336,7 @@ class Test_ExtractMap_process(unittest.TestCase):
         self.assertEqual(
             sorted([
                 (0, sentinel.bb1, sentinel.cc1),
-                (1, sentinel.bb2, sentinel.cc2),
-                ]),
+                (1, sentinel.bb2, sentinel.cc2), ]),
             sorted(map_writer.rows[1:]))
 
 

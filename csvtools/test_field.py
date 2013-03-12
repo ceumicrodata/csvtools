@@ -26,7 +26,10 @@ class Test_NamedField_value_extractor(unittest.TestCase):
         f = m.NamedField('name')
         f.index = 1
 
-        self.assertEqual(sentinel.second, f.value_extractor((sentinel.first, sentinel.second, sentinel.third)))
+        self.assertEqual(
+            sentinel.second,
+            f.value_extractor(
+                (sentinel.first, sentinel.second, sentinel.third)))
 
     def test_nonexisting_field(self):
         f = m.NamedField('name')
