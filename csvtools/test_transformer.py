@@ -63,13 +63,17 @@ def simple_transformer(field_maps_string):
 class Test_SimpleTransformer_output_field_names(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(('out1', 'a', 'b'), simple_transformer('out1=in1,a,b').output_field_names)
+        self.assertEqual(
+            ('out1', 'a', 'b'),
+            simple_transformer('out1=in1,a,b').output_field_names)
 
 
 class Test_SimpleTransformer_input_field_names(unittest.TestCase):
 
     def test(self):
-        self.assertEqual(('in1', 'a', 'b'), simple_transformer('out1=in1,a,b').input_field_names)
+        self.assertEqual(
+            ('in1', 'a', 'b'),
+            simple_transformer('out1=in1,a,b').input_field_names)
 
 
 class Test_SimpleTransformer_bind(unittest.TestCase):

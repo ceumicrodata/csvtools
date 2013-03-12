@@ -10,6 +10,7 @@ class Field(object):
 def None_extractor(row):
     return None
 
+
 def make_index_extractor(index):
     def extractor(row):
         return row[index]

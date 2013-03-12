@@ -7,7 +7,8 @@ class FieldMap(object):
     output_field_name = None
     extractor_field = None
 
-    def __init__(self, input_field_name, output_field_name, extractor_field=None):
+    def __init__(
+            self, input_field_name, output_field_name, extractor_field=None):
         self.input_field_name = input_field_name
         self.output_field_name = output_field_name
         if extractor_field:
@@ -30,7 +31,8 @@ class FieldMaps(object):
             for field_spec in field_maps_string.split(','))
 
     def add(self, input_field_name, output_field_name, extractor_field=None):
-        self.field_maps.append(FieldMap(input_field_name, output_field_name, extractor_field))
+        self.field_maps.append(
+            FieldMap(input_field_name, output_field_name, extractor_field))
 
     def __iter__(self):
         return iter(self.field_maps)
