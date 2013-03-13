@@ -25,12 +25,12 @@ def in_temp_dir(func):
     @functools.wraps(func)
     def decorated(*args, **kwargs):
         curdir = os.getcwdu()
-        try:
-            with tempdir.TempDir() as d:
-                os.chdir(d.name)
+        with tempdir.TempDir() as d:
+            os.chdir(d.name)
+            try:
                 return func(*args, **kwargs)
-        finally:
-            os.chdir(curdir)
+            finally:
+                os.chdir(curdir)
 
     return decorated
 
