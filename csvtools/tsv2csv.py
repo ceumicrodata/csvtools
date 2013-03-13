@@ -1,7 +1,6 @@
 import csv
-import fileinput
 import sys
 
-reader = csv.reader(fileinput.input(), delimiter='\t')
+reader = csv.reader(sys.stdin, delimiter='\t')
 writer = csv.writer(sys.stdout)
 writer.writerows(reader)
