@@ -44,3 +44,9 @@ class StreamSplitter(object):
 
 def split(reader, prefix, chunk_size):
     StreamSplitter(reader, prefix, chunk_size).split()
+
+
+if __name__ == '__main__':
+    import sys
+    prefix, chunk_size = sys.argv[1:]
+    split(csv.reader(sys.stdin), prefix, int(chunk_size))
