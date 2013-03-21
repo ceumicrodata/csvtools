@@ -1,5 +1,6 @@
 import csv
 import sys
+import itertools
 
 
 class InconsistentHeadersError(Exception):
@@ -27,15 +28,14 @@ def concatenate(input_streams, output_stream):
     else:
         output = csv.writer(output_stream)
         output.writerow(headers[0])
-
-        output.writerows(row for csv in csvs
-                             for row in csv)
+        output.writerows(itertools.chain.from_iterable(csvs))
 
 
 if __name__ == "__main__":
-    input_streams = tuple(open(filename, "r")
-                           for filename in sys.argv[1:])
+    input_streams = (
+        tuple(
+            open(filename, "r")
+            for filename in sys.argv[1:]))
 
     if input_streams:
         concatenate(input_streams, sys.stdout)
-
