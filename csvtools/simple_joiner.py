@@ -59,9 +59,9 @@ def join_lists(list1, list2, onFields):
                 matchFound = True
                 yield ([line1[ix] for ix in indices1] + 
                         [line2[ix] for ix in indices2])
-            # if not matchFound :
-            #     yield ([line1[ix] for ix in indices1] + 
-            #             ['' for ix in indices2])
+        if not matchFound :
+            yield ([line1[ix] for ix in indices1] + 
+                    ['' for ix in indices2])
 
 
 def join_csvs(inCsv1path, inCsv2path, outCsvPath, onFields):
