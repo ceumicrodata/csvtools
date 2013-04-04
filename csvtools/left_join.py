@@ -4,87 +4,98 @@ import csv
 import sys
 
 """
-Joins csv1 and csv2 .csv files on fields joinField. Left join.
+joins csv1 and csv2 .csv files on fields join_field. left join.
 
-Usage:
-python simple_joiner.py csv1.csv csv2.csv out_csv.csv joinField1 [joinField2,
+usage:
+python simple_joiner.py csv1.csv csv2.csv out_csv.csv join_field1 [join_field2,
  ...]
 """
 
 
-def get_header_index(header, fields):
-    return [next((ix for ix, v in enumerate(header) if v == x), None) for
-            x in fields]
+def get_indices(header, fields):
+    return [header.index(field) for field in fields]
 
 
-def create_join_header(header1, header2, onFields, suffix1='_1',
+def make_picker(indices):
+    def pick(item):
+        return [item[index] for index in indices]
+    return pick
+
+
+def list_difference(list1, list2):
+    return [x for x in list1 if x not in list2]
+
+
+def list_intersection(list1, list2):
+    return [x for x in list1 if x in list2]
+
+
+def create_join_header(header1, header2, on_fields, suffix1='_1',
                        suffix2='_2'):
     # determine common fields
-    commonFields = [field for field in header1 if field in header2]
-    commonFieldsNoJoin = [field for field in commonFields
-                          if field not in onFields]
-    fieldsOnly1 = [field for field in header1 if field not in commonFields]
-    fieldsOnly2 = [field for field in header2 if field not in commonFields]
-    fieldsCommon1 = [field + suffix1 for field in commonFieldsNoJoin]
-    fieldsCommon2 = [field + suffix2 for field in commonFieldsNoJoin]
+    common_fields = list_intersection(header1, header2)
+    common_fields_no_join = list_difference(common_fields, on_fields)
+    fields_only1 = list_difference(header1, common_fields)
+    fields_only2 = list_difference(header2, common_fields)
+    fields_common1 = [field + suffix1 for field in common_fields_no_join]
+    fields_common2 = [field + suffix2 for field in common_fields_no_join]
 
-    joinHeader = []
-    for fields in [fieldsOnly1, fieldsCommon1, onFields,
-                   fieldsOnly2, fieldsCommon2]:
-        joinHeader += [field for field in fields]
+    join_header = (fields_only1 + fields_common1 + on_fields +
+                  fields_only2 + fields_common2)
+    
+    pick_key_1 = make_picker(get_indices(header1, on_fields))
+    pick_key_2 = make_picker(get_indices(header2, on_fields))
+    pick_content_1 = make_picker(get_indices(header1, fields_only1 +
+                                common_fields_no_join + on_fields))
+    pick_content_2 = make_picker(get_indices(header2, fields_only2 +
+                                common_fields_no_join))
 
-    # determine indices in the order of the header, separately
-    fields1 = fieldsOnly1 + commonFieldsNoJoin + onFields
-    fields2 = fieldsOnly2 + commonFieldsNoJoin
-    indicesJoinHeader1 = get_header_index(header1, fields1)
-    indicesJoinHeader2 = get_header_index(header2, fields2)
-    return joinHeader, indicesJoinHeader1, indicesJoinHeader2
+    return join_header, pick_key_1, pick_key_2, pick_content_1, pick_content_2
 
 
-def join_lists(list1, list2, onFields):
-    iter1 = iter(list1)
-    iter2 = iter(list2)
+def join_lists(iter1, iter2, on_fields):
+    
+    def joined_items(item1, item2):
+        return (pick_content_1(item1) + pick_content_2(item2))
+
+    def joined_items_if_null(item1):
+        return (pick_content_1(item1) + [None]*(len(join_header) - 
+            len(pick_content_1(item1))))
+
+    iter1 = iter(iter1)
+    list2 = list(iter2)
 
     header1 = iter1.next()
-    header2 = iter2.next()
+    header2 = list2[0]
 
-    joinIndex1 = get_header_index(header1, onFields)
-    joinIndex2 = get_header_index(header2, onFields)
+    (join_header,
+     pick_key_1,
+     pick_key_2,
+     pick_content_1,
+     pick_content_2) = create_join_header(header1, header2, on_fields)
+    yield join_header
 
-    (joinHeader,
-     indices1,
-     indices2) = create_join_header(header1, header2, onFields)
-    yield joinHeader
-    for line1 in iter1:
-        joinFields1 = [x for ix, x in enumerate(line1) if ix in joinIndex1]
-        matchFound = False
-        for line2 in iter(list2):
-            joinFields2 = [x for ix, x in enumerate(line2) if ix in joinIndex2]
-            if joinFields1 == joinFields2:
-                matchFound = True
-                yield ([line1[ix] for ix in indices1] +
-                       [line2[ix] for ix in indices2])
-        if not matchFound:
-            yield ([line1[ix] for ix in indices1] +
-                   ['' for ix in indices2])
+    for item1 in iter1:
+        match_found = False
+        for item2 in iter(list2):
+            if pick_key_1(item1) == pick_key_2(item2): 
+                match_found = True
+                yield joined_items(item1, item2)
+        if not match_found:
+            yield joined_items_if_null(item1)
 
 
-def join_csvs(inCsv1path, inCsv2path, outCsvPath, onFields):
-    csv1 = open(inCsv1path, 'rb')
-    csv2 = open(inCsv2path, 'rb')
-    outfile = open(outCsvPath, 'wb')
-    readerCsv1 = csv.reader(csv1)
-    readerCsv2 = csv.reader(csv2)
-    outcsv = csv.writer(outfile)
-    outcsv.writerows(join_lists(readerCsv1, readerCsv2, onFields))
-    csv1.close()
-    csv2.close()
-    outfile.close()
+def join_csvs(in_csv1_path, in_csv2_path, out_csv_path, on_fields):
+    with open(in_csv1_path, 'rb') as csv1:
+        with open(in_csv2_path, 'rb') as csv2:
+            with open(out_csv_path, 'wb') as outfile:
+                reader_csv1 = csv.reader(csv1)
+                reader_csv2 = csv.reader(csv2)
+                outcsv = csv.writer(outfile)
+                outcsv.writerows(join_lists(reader_csv1, 
+                                 reader_csv2, on_fields))
 
 
 if __name__ == "__main__":
-    inCsv1path = sys.argv[1]
-    inCsv2path = sys.argv[2]
-    outCsvPath = sys.argv[3]
-    onFields = sys.argv[4:]
-    join_csvs(inCsv1path, inCsv2path, outCsvPath, onFields)
+    join_csvs(in_csv1_path=sys.argv[1], in_csv2_path=sys.argv[2],
+       out_csv_path=sys.argv[3], on_fields=sys.argv[4:])
