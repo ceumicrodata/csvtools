@@ -1,8 +1,7 @@
 import unittest
 import mock
 from mock import sentinel
-from tempdir import TempDir
-import os.path
+from temp_dir import within_temp_dir
 import csv
 
 from csvtools.test import ReaderWriter
@@ -342,35 +341,33 @@ class Test_ExtractMap_process(unittest.TestCase):
 
 class Test_extract_map(unittest.TestCase):
 
+    @within_temp_dir
     def test_existing_map_used(self):
-        with TempDir() as d:
-            map_file = os.path.join(d.name, 'map.csv')
-            with open(map_file, 'w') as f:
-                f.write('id,a\n5,a')
-            reader = ReaderWriter()
-            reader.rows = [('a', 'b'), ('a', 'b'), ('c', 'd')]
-            writer = ReaderWriter()
+        with open('map.csv', 'w') as f:
+            f.write('id,a\n5,a')
+        reader = ReaderWriter()
+        reader.rows = [('a', 'b'), ('a', 'b'), ('c', 'd')]
+        writer = ReaderWriter()
 
-            m.extract_map(reader, writer, map_file, 'a', 'id')
+        m.extract_map(reader, writer, 'map.csv', 'a', 'id')
 
-            self.assertEqual(
-                sorted([('b', 5), ('d', 6)]),
-                sorted(writer.rows[1:]))
+        self.assertEqual(
+            sorted([('b', 5), ('d', 6)]),
+            sorted(writer.rows[1:]))
 
+    @within_temp_dir
     def test_changed_map_is_written_out(self):
-        with TempDir() as d:
-            map_file = os.path.join(d.name, 'map.csv')
-            with open(map_file, 'w') as f:
-                f.write('id,a\n5,a')
-            reader = ReaderWriter()
-            reader.rows = [('a', 'b'), ('a', 'b'), ('c', 'd')]
-            writer = ReaderWriter()
+        with open('map.csv', 'w') as f:
+            f.write('id,a\n5,a')
+        reader = ReaderWriter()
+        reader.rows = [('a', 'b'), ('a', 'b'), ('c', 'd')]
+        writer = ReaderWriter()
 
-            m.extract_map(reader, writer, map_file, 'a', 'id')
+        m.extract_map(reader, writer, 'map.csv', 'a', 'id')
 
-            with open(map_file) as f:
-                items = tuple(csv.reader(f))
+        with open('map.csv') as f:
+            items = tuple(csv.reader(f))
 
-            self.assertEqual(
-                sorted((('id', 'a'), ('5', 'a'), ('6', 'c'))),
-                map(tuple, sorted(items)))
+        self.assertEqual(
+            sorted((('id', 'a'), ('5', 'a'), ('6', 'c'))),
+            map(tuple, sorted(items)))
