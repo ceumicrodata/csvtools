@@ -42,6 +42,28 @@ The design goals of the tools is
 
 
 ------------------
+### unzip
+    split csv file into two by columns - in a reversible way
+
+#### Input:
+
+- standard input: csv stream with header
+- parameters:
+    1. fields
+    2. file name to receive fields not explicitly specified
+    3. (optional) zip-id field name: --id=zip-id
+
+#### Output:
+
+- standard output: csv stream with the zip-id and the specified fields
+- file whose name was given as parameter: csv file with fields including
+  zip-id and fields not on stdout
+
+#### Example
+    TBD
+
+
+------------------
 ## Planned tools
 
 
