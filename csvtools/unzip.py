@@ -1,5 +1,5 @@
 import argparse
-from operator import itemgetter
+from csvtools.lib import Header
 
 
 class DuplicateFieldError(Exception):
@@ -9,18 +9,16 @@ class DuplicateFieldError(Exception):
 def unzip(csv_in, fields, csv_out_spec, csv_out_unspec, zip_field='id'):
     input_csv = iter(csv_in)
 
-    header = input_csv.next()
-    extractors_by_name = dict(
-        (header_field, itemgetter(i))
-        for (i, header_field) in enumerate(header))
+    header_row = input_csv.next()
+    header = Header(header_row)
 
-    if zip_field in extractors_by_name:
+    if zip_field in header:
         raise DuplicateFieldError(zip_field)
 
-    spec_extractors = [extractors_by_name[field] for field in fields]
+    spec_extractors = [header.extractor(field) for field in fields]
     unspec_extractors = [
-        extractors_by_name[field]
-        for field in header
+        header.extractor(field)
+        for field in header_row
         if field not in fields]
 
     def extract_to(output, extractors, row_id, row):
@@ -32,7 +30,7 @@ def unzip(csv_in, fields, csv_out_spec, csv_out_unspec, zip_field='id'):
         extract_to(csv_out_spec, spec_extractors, row_id, row)
         extract_to(csv_out_unspec, unspec_extractors, row_id, row)
 
-    unzip_row(zip_field, header)
+    unzip_row(zip_field, header_row)
     for zip_id, row in enumerate(input_csv):
         unzip_row(zip_id, row)
 
