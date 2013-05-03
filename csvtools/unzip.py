@@ -1,3 +1,6 @@
+import sys
+import csv
+
 import argparse
 from csvtools.lib import Header
 
@@ -51,10 +54,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-if __name__ == '__main__':
-    import sys
-    import csv
-
+def main():
     args = parse_args(sys.argv[1:])
 
     fields = args.fields.split(',')
@@ -67,3 +67,7 @@ if __name__ == '__main__':
         unzip(
             csv_in, fields, csv_out_spec, csv_out_unspec,
             zip_field=args.zip_field)
+
+
+if __name__ == '__main__':
+    main()

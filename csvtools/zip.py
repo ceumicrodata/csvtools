@@ -1,3 +1,7 @@
+import os
+import sys
+import csv
+
 import argparse
 import itertools
 from lib import Header
@@ -84,11 +88,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-if __name__ == '__main__':
-    import os
-    import sys
-    import csv
-
+def main():
     args = parse_args(sys.argv[1:])
 
     csv_in1 = csv.reader(sys.stdin)
@@ -102,3 +102,7 @@ if __name__ == '__main__':
 
     if args.remove_input_file:
         os.remove(args.other_filename)
+
+
+if __name__ == '__main__':
+    main()
