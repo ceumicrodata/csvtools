@@ -1,9 +1,9 @@
 # Tools for transforming .csv files
 
 Pipe friendly command line tools for processing csv files with headers.
-The design goals of the tools is
+The design goals of the tools are
 
-1. ease of use
+1. ease of use - fields are given by name instead of index
 1. interoperability within package through pipes
 1. minimal interface (i.e. exclusive use of standard input/output wherever possible)
 
@@ -39,6 +39,70 @@ The design goals of the tools is
 ------------------
 ### tsv2csv
     convert tsv to csv stream
+
+
+------------------
+### to_postgres
+
+    - create and populate postgres table
+
+
+```sh
+    csv... | csv_to_postgres new-table-name | psql -q [connection options]
+```
+
+All fields are created as VARCHAR NOT NULL.
+Possible NULL values in csv (unquoted empty strings) are imported as empty
+strings.
+
+Possible future improvements:
+ - serial primary key column
+ - per field data types defined by a config file - field-data-type map
+ - custom index/indices (including primary key, unique constraint)
+
+------------------
+### unzip
+    split csv file into two by columns - in a reversible way
+
+#### Input:
+
+- standard input: csv stream with header
+- parameters:
+    1. fields
+    2. file name to receive fields not explicitly specified
+    3. (optional) zip-id field name: `--id=zip-id`, defaults to `id`
+
+#### Output:
+
+- standard output: csv stream with the zip-id and the specified fields
+- file whose name was given as parameter: csv file with fields including
+  zip-id and fields not on stdout
+
+#### Example
+    TBD
+
+
+### zip
+    join two csv files by a common sorted id field - reverse an unzip
+
+Note: by default also removes the field to join on.
+
+#### Input:
+
+- standard input: csv stream with header
+- parameters:
+    1. other file name to join with
+    2. (optional) `--keep-id`
+    3. (optional) `--rm` to remove other file
+
+The field to join with is implicitly given, as the only common field name.
+
+#### Output:
+
+- standard output: joined csv stream
+
+#### Example
+    TBD
 
 
 ------------------
@@ -137,3 +201,15 @@ csv_weave arguments
 csv2tsv
 tsv2csv
 ```
+
+------------------
+## Projects having similar goals
+
+1. [csvfix](https://code.google.com/p/csvfix/)
+   - feature rich, but by not restricting input to csv files with headers,
+     *fields can not be given by name*
+1. [tsvutils](https://github.com/brendano/tsvutils)
+   - for TSV-s, *bunch of shell, python, ruby scripts, no tests, ...*
+1. [csvkit](https://github.com/onyxfish/csvkit)
+   - mature(!) but *small* set of tools, supports csv variants
+
