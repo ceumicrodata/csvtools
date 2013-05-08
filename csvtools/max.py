@@ -9,10 +9,15 @@ def find_maximum(items, field, groupby=None):
         if not groupby:
             return None
         else:
-            return tuple(item.get(field) for field in groupby.split(","))
+            return tuple(item.get(field) for field in groupby)
 
     def max_key(item):
         return float(item.get(field))
+
+    def ordered(item):
+        return list(item.get(k) for k in items.fieldnames)
+
+    yield items.fieldnames
 
     for group_id, group in itertools.groupby(items, key=group_key):
         group = tuple(group)
@@ -20,16 +25,13 @@ def find_maximum(items, field, groupby=None):
 
         for item in group:
             if max_key(item) == max_key(max_item):
-                yield item
+                yield ordered(item)
 
 
 def dump_as_csv(items):
-    first_item = next(items)
-    writer = csv.DictWriter(sys.stdout, fieldnames=first_item.keys())
-
-    writer.writeheader()
-    writer.writerow(first_item)
-    writer.writerows(items)
+    return (csv
+            .writer(sys.stdout)
+            .writerows(items))
 
 
 if __name__ == "__main__":
@@ -52,5 +54,6 @@ if __name__ == "__main__":
         find_maximum(
             csv.DictReader(sys.stdin),
             field=args[0],
-            groupby=options.fieldnames))
+            groupby=(options.fieldnames.split(",")
+                     if options.fieldnames else None)))
 
