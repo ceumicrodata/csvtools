@@ -3,15 +3,24 @@
 
 from setuptools import setup
 
+VERSION = '0.2.0'
+VERSION_SUFFIX = '-dev'
+
 setup(
     name='csvtools',
-    version='0.1.0-dev',
+    version='{version}{version_suffix}'.format(
+        version=VERSION, version_suffix=VERSION_SUFFIX),
+
     description=u'Tools for transforming .csv files',
     author=u'CEU MicroData',
     url='https://github.com/ceumicrodata/csvtools',
+
     packages=['csvtools'],
-    install_requires=['temp_dir'],
-    provides=['csvtools (0.1.0)'],
+
+    install_requires=['temp_dir'],  # not really - only for tests
+
+    provides=['csvtools ({version})'.format(version=VERSION)],
+
     entry_points={
         'console_scripts': [
             'csv_select = csvtools.select:main',
@@ -21,6 +30,13 @@ setup(
             'csv_rmfields = csvtools.rmfields:main',
             'csv_extract_map = csvtools.extract_map:main',
             'csv_to_postgres = csvtools.to_postgres:main',
+            'csv_to_tsv = csvtools.csv2tsv:main',
+            'tsv_to_csv = csvtools.tsv2csv:main',
+
+            # aliases
+            'csv2postgres = csvtools.to_postgres:main',
+            'csv2tsv = csvtools.csv2tsv:main',
+            'tsv2csv = csvtools.tsv2csv:main',
         ],
     }
     )
