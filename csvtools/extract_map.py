@@ -18,6 +18,7 @@ from csvtools.transformer import Transformer, SimpleTransformer
 from csvtools.field_maps import FieldMaps
 from csvtools.field import Field
 import csv
+import argparse
 
 
 class MissingFieldError(Exception):
@@ -115,10 +116,11 @@ class RefField(Field):
 
 class ExtractMap(Transformer):
 
-    def __init__(self, map_fields_spec, ref_field_spec):
+    def __init__(self, map_fields_spec, ref_field_spec, keep_fields=False):
         field_maps = FieldMaps()
         field_maps.parse_from(map_fields_spec)
-        self.fields_to_remove = field_maps.input_field_names
+        self.fields_to_remove = (
+            set() if keep_fields else field_maps.input_field_names)
 
         # TODO: this is ugly, beautify
         ref_field_map = FieldMaps().parse_field_map_string(ref_field_spec)
@@ -166,8 +168,10 @@ class ExtractMap(Transformer):
         return self.transformer.transform
 
 
-def extract_map(reader, writer, map_file, map_fields_spec, ref_field_spec):
-    transformer = ExtractMap(map_fields_spec, ref_field_spec)
+def extract_map(
+    reader, writer,
+    map_file, map_fields_spec, ref_field_spec, keep_fields=False):
+    transformer = ExtractMap(map_fields_spec, ref_field_spec, keep_fields)
 
     if os.path.exists(map_file):
         with open(map_file) as f:
@@ -180,11 +184,41 @@ def extract_map(reader, writer, map_file, map_fields_spec, ref_field_spec):
             transformer.write_map(csv.writer(f))
 
 
+def parse_args(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--keep-fields',
+        dest='keep_fields',
+        default=False,
+        action='store_true',
+        help='keep extracted fields in output (default: %(default)s)')
+    parser.add_argument(
+        'map_file',
+        help=(
+            'file for the extracted values,'
+            ' if exists it is read and extended'))
+    parser.add_argument(
+        'map_fields',
+        help=(
+            'fields to extract and under what names'
+            ' (map_field=input_field,field_with_same_name)'))
+    parser.add_argument(
+        'ref_field',
+        help=(
+            'field name for the new reference field,'
+            ' by which values can be joined back'))
+    return parser.parse_args(args)
+
+
 def main():
-    reader = csv.reader(sys.stdin)
-    writer = csv.writer(sys.stdout)
-    map_file, map_fields, ref_field = sys.argv[1:]
-    extract_map(reader, writer, map_file, map_fields, ref_field)
+    args = parse_args(sys.argv[1:])
+    extract_map(
+        csv.reader(sys.stdin),
+        csv.writer(sys.stdout),
+        args.map_file,
+        args.map_fields,
+        args.ref_field,
+        keep_fields=args.keep_fields)
 
 
 if __name__ == '__main__':

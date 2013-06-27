@@ -300,6 +300,26 @@ class Test_ExtractMap_process(unittest.TestCase):
                 (sentinel.aa3, sentinel.dd3, 0), ]),
             sorted(writer.rows[1:]))
 
+    def test_keep_fields(self):
+        reader = ReaderWriter()
+        reader.rows = [
+            ('aa', 'bb', 'cc', 'dd'),
+            (sentinel.aa1, sentinel.bb1, sentinel.cc1, sentinel.dd1),
+            (sentinel.aa2, sentinel.bb2, sentinel.cc2, sentinel.dd2),
+            (sentinel.aa3, sentinel.bb1, sentinel.cc1, sentinel.dd3), ]
+        writer = ReaderWriter()
+
+        em = m.ExtractMap('b=bb,c=cc', 'a=id', keep_fields=True)
+        em.process(reader, writer)
+
+        self.assertEqual(
+            [
+                ('aa', 'bb', 'cc', 'dd', 'id'),
+                (sentinel.aa1, sentinel.bb1, sentinel.cc1, sentinel.dd1, 0),
+                (sentinel.aa2, sentinel.bb2, sentinel.cc2, sentinel.dd2, 1),
+                (sentinel.aa3, sentinel.bb1, sentinel.cc1, sentinel.dd3, 0), ],
+            writer.rows)
+
     def test_map_header(self):
         reader = ReaderWriter()
         reader.rows = [('aa', 'bb', 'cc', 'dd'), ]
@@ -371,3 +391,35 @@ class Test_extract_map(unittest.TestCase):
         self.assertEqual(
             sorted((('id', 'a'), ('5', 'a'), ('6', 'c'))),
             map(tuple, sorted(items)))
+
+    @within_temp_dir
+    def test_keep_fields(self):
+        with open('map.csv', 'w') as f:
+            f.write('id,a\n5,a')
+        reader = ReaderWriter()
+        reader.rows = [('a', 'b'), ('a', 'b'), ('c', 'd')]
+        writer = ReaderWriter()
+
+        m.extract_map(reader, writer, 'map.csv', 'a', 'id', keep_fields=True)
+
+        self.assertEqual(
+            [('a', 'b', 'id'), ('a', 'b', 5), ('c', 'd', 6)],
+            writer.rows)
+
+
+class Test_parse_args(unittest.TestCase):
+
+    def test_mandatory_parameters(self):
+        args = m.parse_args('map_file map_fields ref_field'.split())
+        self.assertEqual('map_file', args.map_file)
+        self.assertEqual('map_fields', args.map_fields)
+        self.assertEqual('ref_field', args.ref_field)
+
+    def test_keep_fields_defaults_to_false(self):
+        args = m.parse_args('map_file map_fields ref_field'.split())
+        self.assertFalse(args.keep_fields)
+
+    def test_keep_fields(self):
+        input_args = '--keep-fields map_file map_fields ref_field'.split()
+        args = m.parse_args(input_args)
+        self.assertTrue(args.keep_fields)
