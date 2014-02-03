@@ -26,23 +26,23 @@ class Test_split(unittest.TestCase):
 
         m.split(rows, prefix='split.', chunk_size=3)
 
-        self.assertTrue(os.path.exists(u'split.0'))
-        self.assertFalse(os.path.exists(u'split.1'))
+        self.assertTrue(os.path.exists(u'split.----0'))
+        self.assertFalse(os.path.exists(u'split.----1'))
 
     @within_temp_dir
     def test_11_data_rows_chunk_size_1_11_files_created(self):
         rows = ReaderWriter()
         rows.writerow(u'a b'.split())
         for i in range(11):
-            rows.writerow([i, i+1])
+            rows.writerow([i, i + 1])
 
         m.split(rows, prefix='split.', chunk_size=1)
 
-        self.assertTrue(os.path.exists(u'split.0'))
-        self.assertTrue(os.path.exists(u'split.1'))
+        self.assertTrue(os.path.exists(u'split.----0'))
+        self.assertTrue(os.path.exists(u'split.----1'))
         # ...
-        self.assertTrue(os.path.exists(u'split.10'))
-        self.assertFalse(os.path.exists(u'split.11'))
+        self.assertTrue(os.path.exists(u'split.---10'))
+        self.assertFalse(os.path.exists(u'split.---11'))
 
     @within_temp_dir
     def test_multiple_output_files_have_same_header(self):
@@ -53,8 +53,8 @@ class Test_split(unittest.TestCase):
 
         m.split(rows, prefix='split.', chunk_size=1)
 
-        self.assertEqual(u'a,b', header(u'split.0'))
-        self.assertEqual(u'a,b', header(u'split.1'))
+        self.assertEqual(u'a,b', header(u'split.----0'))
+        self.assertEqual(u'a,b', header(u'split.----1'))
 
     @within_temp_dir
     def test_header_only_input_one_output_file_with_header(self):
@@ -63,7 +63,7 @@ class Test_split(unittest.TestCase):
 
         m.split(rows, prefix='split.', chunk_size=1)
 
-        self.assertEqual(u'a,b', header(u'split.0'))
+        self.assertEqual(u'a,b', header(u'split.----0'))
 
     @within_temp_dir
     def test_output_file_contains_rows_from_input(self):
@@ -74,7 +74,7 @@ class Test_split(unittest.TestCase):
 
         m.split(rows, prefix='split.', chunk_size=2)
 
-        with codecs.open('split.0', encoding='utf8') as f:
+        with codecs.open('split.----0', encoding='utf8') as f:
             self.assertEqual(
                 [[u'a', u'b'],
                  [u'1', u'2'],

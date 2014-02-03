@@ -21,7 +21,10 @@ class StreamSplitter(object):
         if self.output_file is not None:
             self.close_file()
 
-        self.output_file = open(self.prefix + str(self.file_index), 'w')
+        file_name = self.prefix + (
+            '{:5d}'.format(self.file_index).replace(' ', '-')
+        )
+        self.output_file = open(file_name, 'w')
         writer = csv.writer(self.output_file)
         writer.writerow(self.header)
         return writer
