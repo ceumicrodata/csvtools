@@ -31,7 +31,7 @@ def concatenate(input_streams, output_stream):
         output.writerows(itertools.chain.from_iterable(csvs))
 
 
-if __name__ == "__main__":
+def main():
     input_streams = (
         tuple(
             open(filename, "r")
@@ -39,3 +39,7 @@ if __name__ == "__main__":
 
     if input_streams:
         concatenate(input_streams, sys.stdout)
+
+
+if __name__ == "__main__":
+    main()
