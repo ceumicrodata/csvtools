@@ -3,13 +3,16 @@
 
 from setuptools import setup
 
-VERSION = '0.4.0'
+VERSION = '0.5.0'
 VERSION_SUFFIX = '-dev'
+# VERSION_SUFFIX = ''
 
 setup(
     name='csvtools',
     version='{version}{version_suffix}'.format(
-        version=VERSION, version_suffix=VERSION_SUFFIX),
+        version=VERSION,
+        version_suffix=VERSION_SUFFIX,
+    ),
 
     description=u'Tools for transforming .csv files',
     author=u'CEU MicroData',
