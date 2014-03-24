@@ -1,69 +1,115 @@
-# coding: utf-8
-
 import unittest
 from StringIO import StringIO
+import textwrap
 import csv
 import csvtools.concatenate as m
 
 
-def csv_rows(string_io):
-    return list(csv.reader(StringIO(string_io.getvalue())))
+def get_stream(text):
+    return StringIO(textwrap.dedent(text))
 
 
-class Test_concatenate(unittest.TestCase):
+def get_values(text):
+    return list(csv.reader(get_stream(text)))
 
-    @property
-    def input_a(self):
-        return (
-            StringIO(
-                "id,lorem,ipsum\n"
-                "1,dolor,sit\n"
-                "2,amet,consectetuer"))
 
-    @property
-    def input_b(self):
-        return (
-            StringIO(
-                "id,lorem,ipsum\n"
-                "3,adipisicing,velit"))
+assert [['a', 'b'], ['1', '2']] == get_values(
+    '''\
+    a,b
+    1,2
+    '''
+)
 
-    @property
-    def input_c(self):
-        return (
-            StringIO(
-                "id\n"
-                "4\n"
-                "5"))
+LOREM_12 = '''\
+    id,lorem,ipsum
+    1,dolor,sit
+    2,amet,consectetuer
+'''
 
-    def test_single_input_returned(self):
-        output = StringIO()
+LOREM_3 = '''\
+    id,lorem,ipsum
+    3,adipisicing,velit
+'''
 
-        m.concatenate((self.input_a,), output)
+LOREM_123 = '''\
+    id,lorem,ipsum
+    1,dolor,sit
+    2,amet,consectetuer
+    3,adipisicing,velit
+'''
 
+ID_45 = '''\
+    id
+    4
+    5
+'''
+
+
+DEFAULT_CSV_FIELD_SIZE = csv.field_size_limit()
+
+
+class Test_CsvAppender(unittest.TestCase):
+
+    def make_new_appender(self, max_csv_field_size=DEFAULT_CSV_FIELD_SIZE):
+        self.output_stream = StringIO()
+        self.appender = m.CsvAppender(self.output_stream, max_csv_field_size)
+
+    def setUp(self):
+        self.make_new_appender()
+
+    def tearDown(self):
+        csv.field_size_limit(DEFAULT_CSV_FIELD_SIZE)
+
+    def get_appended(self):
+        return get_values(self.output_stream.getvalue())
+
+    def test_one_file(self):
+        input_stream = get_stream(LOREM_12)
+        self.appender.append(input_stream)
         self.assertEqual(
-            csv_rows(output),
-            [["id", "lorem", "ipsum"],
-             ["1", "dolor", "sit"],
-             ["2", "amet", "consectetuer"]])
+            get_values(LOREM_12),
+            self.get_appended()
+        )
 
-    def test_two_inputs_concatenated(self):
-        output = StringIO()
-
-        m.concatenate(
-            (self.input_a, self.input_b),
-            output)
-
+    def test_files_with_same_header_are_concatenated(self):
+        lorem_12 = get_stream(LOREM_12)
+        lorem_3 = get_stream(LOREM_3)
+        self.appender.append(lorem_12)
+        self.appender.append(lorem_3)
         self.assertEqual(
-            csv_rows(output),
-            [["id", "lorem", "ipsum"],
-             ["1", "dolor", "sit"],
-             ["2", "amet", "consectetuer"],
-             ["3", "adipisicing", "velit"]])
+            get_values(LOREM_123),
+            self.get_appended()
+        )
 
-    def test_inconsistent_fieldnames_not_accepted(self):
-        output = StringIO()
+    def test_files_with_different_headers_is_error(self):
+        lorem_12 = get_stream(LOREM_12)
+        id_45 = get_stream(ID_45)
+        self.appender.append(lorem_12)
 
         with self.assertRaises(m.InconsistentHeadersError):
-            m.concatenate(
-                (self.input_a, self.input_b, self.input_c),
-                output)
+            self.appender.append(id_45)
+
+        self.assertEqual(
+            get_values(LOREM_12),
+            self.get_appended()
+        )
+
+    def test_large_field_in_csv(self):
+        self.make_new_appender(max_csv_field_size=4 * 1024 ** 2)
+        csv_stream = StringIO()
+        writer = csv.writer(csv_stream)
+        writer.writerow(['a'])
+        big_field_value = 'a\n' * (1024 ** 2)
+        writer.writerow([big_field_value])
+        csv_stream.seek(0)
+
+        # expect no errors!
+        self.appender.append(csv_stream)
+
+        self.assertEqual(
+            [
+                ['a'],
+                [big_field_value]
+            ],
+            self.get_appended()
+        )

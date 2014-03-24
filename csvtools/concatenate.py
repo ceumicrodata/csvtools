@@ -1,44 +1,74 @@
+import argparse
 import csv
 import sys
-import itertools
 
 
 class InconsistentHeadersError(Exception):
-    pass
+    'Headers do not match'
 
 
-def input_csvs(streams):
-    return tuple(csv.reader(stream) for stream in streams)
+class CsvAppender(object):
+
+    def __init__(self, output_stream, max_csv_field_size):
+        self.writer = csv.writer(output_stream)
+        self.header = None
+        csv.field_size_limit(max_csv_field_size)
+
+    def append(self, stream):
+        reader = iter(csv.reader(stream))
+        header = reader.next()
+        if self.header is None:
+            self.header = header
+            self.writer.writerow(header)
+        elif header != self.header:
+            raise InconsistentHeadersError(self.header, header)
+        self.writer.writerows(reader)
 
 
-def read_header(csv):
-    return next(csv)
-
-
-def same_values(items):
-    return all(item == items[0] for item in items)
-
-
-def concatenate(input_streams, output_stream):
-    csvs = input_csvs(input_streams)
-    headers = tuple(read_header(csv) for csv in csvs)
-
-    if not same_values(headers):
-        raise InconsistentHeadersError()
-    else:
-        output = csv.writer(output_stream)
-        output.writerow(headers[0])
-        output.writerows(itertools.chain.from_iterable(csvs))
+def parse_args(args):
+    parser = argparse.ArgumentParser(
+        description='Concatenate csv files',
+    )
+    parser.add_argument(
+        'filenames',
+        metavar='FILE',
+        nargs='+',
+    )
+    parser.add_argument(
+        '--max-csv-field-size',
+        type=int,
+        default=csv.field_size_limit(),
+        help=(
+            'CSV reader parameter, raise for very big text fields'
+            + ' containing new lines (default %(default)s)'
+        ),
+    )
+    parser.add_argument(
+        '-p',
+        '--progress',
+        action='store_true',
+        default=False,
+        help='Show progress',
+    )
+    return parser.parse_args(args)
 
 
 def main():
-    input_streams = (
-        tuple(
-            open(filename, "r")
-            for filename in sys.argv[1:]))
+    args = parse_args(sys.argv[1:])
+    appender = CsvAppender(
+        sys.stdout,
+        max_csv_field_size=args.max_csv_field_size
+    )
 
-    if input_streams:
-        concatenate(input_streams, sys.stdout)
+    for filename in args.filenames:
+        with open(filename) as file:
+            try:
+                appender.append(file)
+            except:
+                sys.stderr.write(
+                    'Exception in file >>> {} <<<\n'.format(filename)
+                )
+                raise
 
 
 if __name__ == "__main__":
