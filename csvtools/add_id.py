@@ -38,4 +38,3 @@ if __name__ == "__main__":
         add_id(
             read_csv(),
             id_fieldname))
-

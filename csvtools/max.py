@@ -36,14 +36,17 @@ def dump_as_csv(items):
 
 if __name__ == "__main__":
     parser = optparse.OptionParser(
-                usage="Usage: %prog [options] FIELDNAME",
-                description=("Find maximum-value items."
-                             + "  Input should be sorted by groups."))
+        usage="Usage: %prog [options] FIELDNAME",
+        description=(
+            "Find maximum-value items. Input should be sorted by groups."
+        )
+    )
     parser.add_option(
-                "-g",
-                "--groupby",
-                dest="fieldnames",
-                help="find maximum within groups defined by FIELDNAMES")
+        "-g",
+        "--groupby",
+        dest="fieldnames",
+        help="find maximum within groups defined by FIELDNAMES"
+    )
 
     options, args = parser.parse_args()
 
@@ -54,6 +57,9 @@ if __name__ == "__main__":
         find_maximum(
             csv.DictReader(sys.stdin),
             field=args[0],
-            groupby=(options.fieldnames.split(",")
-                     if options.fieldnames else None)))
-
+            groupby=(
+                options.fieldnames.split(",")
+                if options.fieldnames else None
+            )
+        )
+    )

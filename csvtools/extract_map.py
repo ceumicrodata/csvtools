@@ -169,8 +169,8 @@ class ExtractMap(Transformer):
 
 
 def extract_map(
-    reader, writer,
-    map_file, map_fields_spec, ref_field_spec, keep_fields=False):
+        reader, writer,
+        map_file, map_fields_spec, ref_field_spec, keep_fields=False):
     transformer = ExtractMap(map_fields_spec, ref_field_spec, keep_fields)
 
     if os.path.exists(map_file):

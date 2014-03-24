@@ -18,4 +18,3 @@ class Test_add_id(unittest.TestCase):
         self.assertEqual(
             list(m.add_id(input_items, "id")),
             output_items)
-

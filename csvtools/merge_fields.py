@@ -51,4 +51,3 @@ if __name__ == "__main__":
             read_csv(),
             constituents,
             new_fieldname))
-

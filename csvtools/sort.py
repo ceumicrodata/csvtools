@@ -6,8 +6,9 @@ import sys
 def sort(items, fields, numeric=False):
     def key(item):
         return tuple(
-                    float(item.get(k)) if numeric else item.get(k)
-                    for k in fields)
+            float(item.get(k)) if numeric else item.get(k)
+            for k in fields
+        )
 
     def ordered(item):
         return list(item.get(k) for k in items.fieldnames)
@@ -19,22 +20,26 @@ def sort(items, fields, numeric=False):
 
 
 def dump_as_csv(items):
-    return (csv
-            .writer(sys.stdout)
-            .writerows(items))
+    return (
+        csv
+        .writer(sys.stdout)
+        .writerows(items)
+    )
 
 
 if __name__ == "__main__":
     parser = optparse.OptionParser(
-                usage="Usage: %prog [options] FIELDNAMES",
-                description="Sort items by FIELDNAMES.")
+        usage="Usage: %prog [options] FIELDNAMES",
+        description="Sort items by FIELDNAMES."
+    )
     parser.add_option(
-                "-n",
-                "--numeric-sort",
-                action="store_true",
-                default=False,
-                dest="numeric",
-                help="compare according to numerical value")
+        "-n",
+        "--numeric-sort",
+        action="store_true",
+        default=False,
+        dest="numeric",
+        help="compare according to numerical value"
+    )
 
     options, args = parser.parse_args()
 
@@ -45,5 +50,6 @@ if __name__ == "__main__":
         sort(
             csv.DictReader(sys.stdin),
             fields=args[0].split(","),
-            numeric=options.numeric))
-
+            numeric=options.numeric
+        )
+    )

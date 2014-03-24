@@ -44,4 +44,3 @@ class Test_max(unittest.TestCase):
              [1, "0.9"],
              [1, "0.9"],
              [2, "0.8"]])
-

@@ -56,4 +56,3 @@ class Test_sort(unittest.TestCase):
              [1, 3, "1"],
              [3, 1, "12"],
              [2, 2, "100"]])
-
