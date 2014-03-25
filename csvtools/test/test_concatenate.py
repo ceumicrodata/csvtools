@@ -45,20 +45,11 @@ ID_45 = '''\
 '''
 
 
-DEFAULT_CSV_FIELD_SIZE = csv.field_size_limit()
-
-
 class Test_CsvAppender(unittest.TestCase):
 
-    def make_new_appender(self, max_csv_field_size=DEFAULT_CSV_FIELD_SIZE):
-        self.output_stream = StringIO()
-        self.appender = m.CsvAppender(self.output_stream, max_csv_field_size)
-
     def setUp(self):
-        self.make_new_appender()
-
-    def tearDown(self):
-        csv.field_size_limit(DEFAULT_CSV_FIELD_SIZE)
+        self.output_stream = StringIO()
+        self.appender = m.CsvAppender(self.output_stream)
 
     def get_appended(self):
         return get_values(self.output_stream.getvalue())
@@ -95,21 +86,12 @@ class Test_CsvAppender(unittest.TestCase):
         )
 
     def test_large_field_in_csv(self):
-        self.make_new_appender(max_csv_field_size=4 * 1024 ** 2)
         csv_stream = StringIO()
         writer = csv.writer(csv_stream)
         writer.writerow(['a'])
-        big_field_value = 'a\n' * (1024 ** 2)
+        big_field_value = ('a\n' * 1024) * 1024
         writer.writerow([big_field_value])
         csv_stream.seek(0)
 
         # expect no errors!
         self.appender.append(csv_stream)
-
-        self.assertEqual(
-            [
-                ['a'],
-                [big_field_value]
-            ],
-            self.get_appended()
-        )

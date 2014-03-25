@@ -1,6 +1,8 @@
 import argparse
 import csv
 import sys
+from StringIO import StringIO
+import shutil
 
 
 class InconsistentHeadersError(Exception):
@@ -9,56 +11,39 @@ class InconsistentHeadersError(Exception):
 
 class CsvAppender(object):
 
-    def __init__(self, output_stream, max_csv_field_size):
-        self.writer = csv.writer(output_stream)
+    def __init__(self, output_stream):
+        self.output_stream = output_stream
         self.header = None
-        csv.field_size_limit(max_csv_field_size)
 
     def append(self, stream):
-        reader = iter(csv.reader(stream))
-        header = reader.next()
+        # write/check header
+        line = stream.readline()
+        header = iter(csv.reader(StringIO(line))).next()
         if self.header is None:
             self.header = header
-            self.writer.writerow(header)
+            self.output_stream.write(line)
         elif header != self.header:
             raise InconsistentHeadersError(self.header, header)
-        self.writer.writerows(reader)
+
+        # copy rest of csv
+        shutil.copyfileobj(stream, self.output_stream)
 
 
 def parse_args(args):
     parser = argparse.ArgumentParser(
-        description='Concatenate csv files',
+        description='Concatenate csv files to stdout',
     )
     parser.add_argument(
         'filenames',
         metavar='FILE',
         nargs='+',
     )
-    parser.add_argument(
-        '--max-csv-field-size',
-        type=int,
-        default=csv.field_size_limit(),
-        help=(
-            'CSV reader parameter, raise for very big text fields'
-            + ' containing new lines (default %(default)s)'
-        ),
-    )
-    parser.add_argument(
-        '-p',
-        '--progress',
-        action='store_true',
-        default=False,
-        help='Show progress',
-    )
     return parser.parse_args(args)
 
 
 def main():
     args = parse_args(sys.argv[1:])
-    appender = CsvAppender(
-        sys.stdout,
-        max_csv_field_size=args.max_csv_field_size
-    )
+    appender = CsvAppender(sys.stdout)
 
     for filename in args.filenames:
         with open(filename) as file:

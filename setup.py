@@ -4,8 +4,8 @@
 from setuptools import setup
 
 VERSION = '0.5.0'
-VERSION_SUFFIX = '-dev'
-# VERSION_SUFFIX = ''
+# VERSION_SUFFIX = '-dev'
+VERSION_SUFFIX = ''
 
 setup(
     name='csvtools',
