@@ -1,8 +1,14 @@
+# Py3 compatibility
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import argparse
-import csv
+import io
 import sys
-from StringIO import StringIO
-import shutil
+
+if sys.version_info.major == 2:
+    import codecs
+    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 
 class InconsistentHeadersError(Exception):
@@ -17,16 +23,19 @@ class CsvAppender(object):
 
     def append(self, stream):
         # write/check header
-        line = stream.readline()
-        header = iter(csv.reader(StringIO(line))).next()
+        lines = (line.rstrip('\n') for line in stream)
+        header = next(lines)
         if self.header is None:
             self.header = header
-            self.output_stream.write(line)
+            self.output_stream.write(header)
+            self.output_stream.write('\n')
         elif header != self.header:
             raise InconsistentHeadersError(self.header, header)
 
         # copy rest of csv
-        shutil.copyfileobj(stream, self.output_stream)
+        for line in lines:
+            self.output_stream.write(line)
+            self.output_stream.write('\n')
 
 
 def parse_args(args):
@@ -46,7 +55,7 @@ def main():
     appender = CsvAppender(sys.stdout)
 
     for filename in args.filenames:
-        with open(filename) as file:
+        with io.open(filename, 'rtU') as file:
             try:
                 appender.append(file)
             except:
