@@ -1,3 +1,12 @@
+import csv
+from StringIO import StringIO
+import textwrap
+
+
+def csv_reader(content):
+    return csv.reader(StringIO(textwrap.dedent(content)))
+
+
 class ReaderWriter(object):
 
     '''
@@ -11,6 +20,9 @@ class ReaderWriter(object):
 
     def writerow(self, row):
         self.rows.append(row)
+
+    def writerows(self, rows):
+        self.rows.extend(rows)
 
     def __iter__(self):
         return iter(self.rows)
