@@ -28,41 +28,33 @@ def hide_stderr():
             sys.stderr = stderr
 
 
-A_YEAR = '2010'
-
-
 class Test_arguments(TestCase):
 
     def parse_args(self, cmdline):
         return m.parse_args(cmdline.split())
 
-    def test_defaults(self):
-        args = self.parse_args(A_YEAR)
+    def test_interval_fields(self):
+        args = self.parse_args('hattol hatig 2010')
         self.assertEqual('hattol', args.from_field)
         self.assertEqual('hatig', args.to_field)
 
     def test_normal_date(self):
-        args = self.parse_args('2011-01-12')
+        args = self.parse_args('f t 2011-01-12')
         self.assertEqual(2011, args.snapshot_date.year)
         self.assertEqual(1, args.snapshot_date.month)
         self.assertEqual(12, args.snapshot_date.day)
 
     def test_not_a_date(self):
         with self.assertRaises(SystemExit), hide_stderr():
-            self.parse_args('x2011-01-12')
+            self.parse_args('f t x2011-01-12')
 
     def test_bad_date(self):
         with self.assertRaises(SystemExit), hide_stderr():
-            self.parse_args('2014-2-29')
+            self.parse_args('f t 2014-2-29')
 
     def test_0_month(self):
         with self.assertRaises(SystemExit), hide_stderr():
-            self.parse_args('2014-00-01')
-
-    def test_short_names(self):
-        args = self.parse_args('-f from -t to 2014')
-        self.assertEqual('from', args.from_field)
-        self.assertEqual('to', args.to_field)
+            self.parse_args('f t 2014-00-01')
 
 
 TEST_CSV = '''\
@@ -119,7 +111,7 @@ class Test_script(TestCase):
         env = scripttest.TestFileEnvironment('scripttest')
         self.addCleanup(env.clear)
         r = env.run(
-            'csv_snapshot', '--from-field=from', '-t', 'to', '2001-01-01',
+            'csv_snapshot', 'from', 'to', '2001-01-01',
             stdin=TEST_CSV.encode('utf-8'),
         )
         self.assertEqual(

@@ -36,16 +36,12 @@ iso8601_date = parse_date
 def parse_args(argv):
     parser = ArgumentParser()
     parser.add_argument(
-        '-f',
-        '--from-field',
-        default='hattol',
-        help='csv field (%%(default)s)'
+        'from_field',
+        help='start of interval field'
     )
     parser.add_argument(
-        '-t',
-        '--to-field',
-        default='hatig',
-        help='csv field (%%(default)s)'
+        'to_field',
+        help='end of interval field'
     )
     parser.add_argument(
         'snapshot_date',
