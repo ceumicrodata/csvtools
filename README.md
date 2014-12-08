@@ -58,8 +58,10 @@ Possible NULL values in csv (unquoted empty strings) are imported as empty
 strings.
 
 Possible future improvements:
- - serial primary key column
- - per field data types defined by parameters
+ - primary key column `--primary-key field[,field[...]]`
+ - per field data types defined by parameters `field1=integer field2=date`
+ - nullable columns `--nullable field[,field[...]]`
+
 
 ------------------
 ### unzip
