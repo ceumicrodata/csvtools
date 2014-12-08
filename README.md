@@ -5,7 +5,9 @@ The design goals of the tools are
 
 1. ease of use - fields are given by name instead of index
 1. interoperability within package through pipes
-1. minimal interface (i.e. exclusive use of standard input/output wherever possible)
+1. minimal interface (e.g. exclusive use of standard input/output wherever possible)
+1. only [well formatted](https://tools.ietf.org/html/rfc4180) csv files with header row, `,` as field separator and `"` as quote character - as provided by the python csv module
+1. python 3 compatibility
 
 
 ------------------
@@ -57,8 +59,7 @@ strings.
 
 Possible future improvements:
  - serial primary key column
- - per field data types defined by a config file - field-data-type map
- - custom index/indices (including primary key, unique constraint)
+ - per field data types defined by parameters
 
 ------------------
 ### unzip
@@ -106,10 +107,6 @@ The field to join with is implicitly given, as the only common field name.
 
 
 ------------------
-## Planned tools
-
-
-------------------
 ### split
     standard input into file chunks of given size
 
@@ -129,11 +126,6 @@ Split csv stream with header to files.
 Each file has the same header as the input and contain exactly the number of
 data rows given.
 The last output file might potentially contain less than the chunk size.
-
-
-------------------
-### divide
-    into exactly the given number of equal sized files
 
 
 ------------------
@@ -167,6 +159,15 @@ but it is also possible to give only a prefix for a series of files.
 
 
 ------------------
+## Planned tools
+
+
+------------------
+### divide
+    into exactly the given number of equal sized files
+
+
+------------------
 ### weave
     which is reverse of divide
 
@@ -182,22 +183,12 @@ This documentation is in need of some content and improvement + formatting.
 Currently tools can be invoked from anywhere by commands like
 
 ```sh
-python -m csvtools.tool tool-arguments
-```
-
-where `tool` is the above tools: `select`, `rmfields`, ...
-
-In the future tools will become console scripts, so that they can be invoked like
-
-```sh
 csv_select arguments
 csv_rmfields arguments
 csv_extract_map arguments
 csv_split arguments
-csv_divide arguments
 csv_concatenate arguments
 csv_cat arguments
-csv_weave arguments
 csv2tsv
 tsv2csv
 ```
@@ -205,11 +196,9 @@ tsv2csv
 ------------------
 ## Projects having similar goals
 
-1. [csvfix](https://code.google.com/p/csvfix/)
-   - feature rich, but by not restricting input to csv files with headers,
-     *fields can not be given by name*
-1. [tsvutils](https://github.com/brendano/tsvutils)
-   - for TSV-s, *bunch of shell, python, ruby scripts, no tests, ...*
-1. [csvkit](https://github.com/onyxfish/csvkit)
-   - mature(!) but *small* set of tools, supports csv variants
+Actually can not be listed all, as there are a [lot of them](https://github.com/search?q=csv+cut&ref=searchresults&type=Repositories&utf8=%E2%9C%93).
+The starting point is the `csv cut` operation usually - select some columns.
 
+Probably the best known and most mature is [csvkit](https://github.com/onyxfish/csvkit) which is a *small* set of tools, supports csv variants.  It is rather slow.
+
+Another mature one is [csvfix](https://code.google.com/p/csvfix/), which is feature rich, but by not restricting input to csv files with headers, *fields can not be given by name*, it is also non-python.
