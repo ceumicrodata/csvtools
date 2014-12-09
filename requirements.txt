@@ -1,0 +1,2 @@
+aniso8601==0.90
+unicodecsv==0.9.4

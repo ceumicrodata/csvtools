@@ -1,0 +1,7 @@
+mock==1.0.1
+nose==1.3.3
+temp-dir==0.1.1
+aniso8601==0.90
+scripttest==1.3
+unicodecsv==0.9.4
+-e .
