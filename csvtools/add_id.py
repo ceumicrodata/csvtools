@@ -1,40 +1,36 @@
 # coding: utf-8
 
+import argparse
 import sys
 import csv
-
-
-def read_csv():
-    return csv.reader(sys.stdin)
 
 
 def add_id(items, id_fieldname):
     items = iter(items)
 
-    def header():
-        header = items.next()
+    input_header = next(items)
+    assert id_fieldname not in input_header
 
-        return [id_fieldname] + header
-
-    yield header()
-
+    yield [id_fieldname] + input_header
     for id, item in enumerate(items, 1):
         yield [id] + item
 
 
-def print_as_csv(items):
-    writer = csv.writer(sys.stdout)
+def main():
+    parser = argparse.ArgumentParser(
+        description='''
+        Add a row counter field - starting from 1
+        '''
+    )
+    parser.add_argument('field_name')
+    args = parser.parse_args()
 
-    writer.writerows(items)
+    input_stream = csv.reader(sys.stdin)
+    output_stream = csv.writer(sys.stdout)
 
+    output_stream.writerows(
+        add_id(input_stream, args.field_name)
+    )
 
 if __name__ == "__main__":
-    try:
-        id_fieldname = sys.argv[1]
-    except IndexError:
-        id_fieldname = "id"
-
-    print_as_csv(
-        add_id(
-            read_csv(),
-            id_fieldname))
+    main()

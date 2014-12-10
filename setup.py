@@ -29,6 +29,7 @@ setup(
 
     entry_points={
         'console_scripts': [
+            'csv_add_id = csvtools.add_id:main',
             'csv_select = csvtools.select:main',
             'csv_split = csvtools.split:main',
             'csv_cat = csvtools.concatenate:main',
@@ -42,6 +43,7 @@ setup(
             'csv_snapshot = csvtools.snapshot:main',
 
             # aliases _ -> -
+            'csv-add-id = csvtools.add_id:main',
             'csv-select = csvtools.select:main',
             'csv-split = csvtools.split:main',
             'csv-cat = csvtools.concatenate:main',
