@@ -1,206 +1,88 @@
 # Tools for transforming .csv files
 
-Pipe friendly command line tools for processing csv files with headers.
-The design goals of the tools are
+Pipe friendly command line tools for processing CSV files with headers.
 
-1. ease of use - fields are given by name instead of index
-1. interoperability within package through pipes
-1. minimal interface (e.g. exclusive use of standard input/output wherever possible)
-1. only [well formatted](https://tools.ietf.org/html/rfc4180) csv files with header row, `,` as field separator and `"` as quote character - as provided by the python csv module
-1. python 3 compatibility
+CSV files
+- have a header row
+- use `,` as field separator and `"` as quote character
+- are well formatted according to [rfc 4180](https://tools.ietf.org/html/rfc4180)
+- all rows have the same number of fields
+
+
+------------------
+## Installation
+
+    pip install csvtools
+
+Except, this works only internally @CEU, not released to PyPI: the csvtools package there is not this one (see #6).  This package will be rebranded to resolve this issue.
 
 
 ------------------
 ## Tools
 
-------------------
-### select
+### Structure manipulation
 
-    - select, reorder and rename fields in stream
+- `add_id`
+- `add_fields`  (TODO: implement)
+- `rmfields`  (TODO: rename to `drop_fields`?)
+- `select` (TODO: rename to `cut`)
+- `extract_map`
+- `unzip`
+- `zip`
 
+### Map-reduce helpers
+- `split`
+- `concatenate`
 
-------------------
-### rmfields
+### Conversion tools
+- `csv_to_tsv`
+- `tsv_to_csv`
+- `to_postgres`
+- `to_sqlite`  (TODO: implement)
+- `from-sqlite`  (TODO: implement)
 
-    - remove fields from csv stream
-
-
-------------------
-### extract_map
-
-    - extract a group of fields into a new file with an id
-    - only distinct values are stored
-    - the output will receive the id field
-
-
-------------------
-### csv2tsv
-    convert csv to tsv stream
-
-
-------------------
-### tsv2csv
-    convert tsv to csv stream
+### Temporal CSV tools (dealing with dates)
+- `normalize_date`  (TODO: implement)
+- `drop_bad_date`  (TODO: implement)
+- `snapshot`
+- `snapshot_quality`  (TODO: implement)
 
 
 ------------------
-### to_postgres
+## The design goals of the tools are
 
-    - create and populate postgres table
+- ease of use
+    - minimal no-nonsense interface (file a bug if something is non-obvious!)
+    - exclusive use of standard input/output wherever possible
+    - composability with pipes
+    - fields are referenced by name instead of index
+- speed - simplicity results in speed, pipes enable use of multiple CPUs
+- python 3 compatibility
 
-
-```sh
-    csv... | csv_to_postgres new-table-name | psql -q [connection options]
-```
-
-All fields are created as VARCHAR NOT NULL.
-Possible NULL values in csv (unquoted empty strings) are imported as empty
-strings.
-
-Possible future improvements:
- - primary key column `--primary-key field[,field[...]]`
- - per field data types defined by parameters `field1=integer field2=date`
- - nullable columns `--nullable field[,field[...]]`
-
-
-------------------
-### unzip
-    split csv file into two by columns - in a reversible way
-
-#### Input:
-
-- standard input: csv stream with header
-- parameters:
-    1. fields
-    2. file name to receive fields not explicitly specified
-    3. (optional) zip-id field name: `--id=zip-id`, defaults to `id`
-
-#### Output:
-
-- standard output: csv stream with the zip-id and the specified fields
-- file whose name was given as parameter: csv file with fields including
-  zip-id and fields not on stdout
-
-#### Example
-    TBD
-
-
-### zip
-    join two csv files by a common sorted id field - reverse an unzip
-
-Note: by default also removes the field to join on.
-
-#### Input:
-
-- standard input: csv stream with header
-- parameters:
-    1. other file name to join with
-    2. (optional) `--keep-id`
-    3. (optional) `--rm` to remove other file
-
-The field to join with is implicitly given, as the only common field name.
-
-#### Output:
-
-- standard output: joined csv stream
-
-#### Example
-    TBD
-
-
-------------------
-### split
-    standard input into file chunks of given size
-
-#### Input:
-
-- standard input: csv stream with header
-- parameters:
-    1. output chunk size (in data rows)
-    2. output file prefix
-
-#### Output:
-
-- standard output: nothing
-- files named `output file prefix`.`file number`
-
-Split csv stream with header to files.
-Each file has the same header as the input and contain exactly the number of
-data rows given.
-The last output file might potentially contain less than the chunk size.
-
-
-------------------
-### concatenate
-    which is reverse of split
-
-Concatenate the inputs, so that the headers are skipped: only the first
-header is written.
-
-#### Input:
-
-- parameters:
-    1. input file or input file prefix
-    2. (optional) input file or input file prefix
-    3. ...
-
-The inputs are either file names or prefixes.
-The input is a file if it exists.
-The input is a prefix if it does not exist as a file, but `prefix` `0`
-does exist.
-When the input is a prefix the files to be concatenated are all of
-the files with `prefix` + number, so that a file exists for every
-non-negative integer less than this number.
-
-Thus it is possible to give multiple explicit file names to concatenate
-but it is also possible to give only a prefix for a series of files.
-
-#### Output:
-
-- standard output: concatenated csv stream
-
-
-------------------
-## Planned tools
-
-
-------------------
-### divide
-    into exactly the given number of equal sized files
-
-
-------------------
-### weave
-    which is reverse of divide
+Please note, that not all of the goals are achieved for all tools, yet.
 
 
 ------------------
 ## Status
 
-Planned tools are under development, existing tools are in production
-use, even if used manually and rarely.
+The tools are in production use.
 
-This documentation is in need of some content and improvement + formatting.
+This documentation is in need of some content and improvement.
 
-Currently tools can be invoked from anywhere by commands like
+The package will be rebranded as its name is taken on PyPI (#6).
 
-```sh
-csv_select arguments
-csv_rmfields arguments
-csv_extract_map arguments
-csv_split arguments
-csv_concatenate arguments
-csv_cat arguments
-csv2tsv
-tsv2csv
-```
+Raise issues on [github](https://github.com/ceumicrodata/csvtools/issues) for questions, bugs, problems, or worthy alternatives not mentioned below.
+
+You can also open pull requests.
+
 
 ------------------
 ## Projects having similar goals
 
-Actually can not be listed all, as there are a [lot of them](https://github.com/search?q=csv+cut&ref=searchresults&type=Repositories&utf8=%E2%9C%93).
-The starting point is the `csv cut` operation usually - select some columns.
+Python's csv module is exceptionally good, thus CSV processing is a low hanging fruit in Python.
 
-Probably the best known and most mature is [csvkit](https://github.com/onyxfish/csvkit) which is a *small* set of tools, supports csv variants.  It is rather slow.
+A lot of random tools can be found, but there is only few well maintained projects.
 
-Another mature one is [csvfix](https://code.google.com/p/csvfix/), which is feature rich, but by not restricting input to csv files with headers, *fields can not be given by name*, it is also non-python.
+Probably the best known and most mature is [csvkit](https://github.com/onyxfish/csvkit).
+
+There is an overlap between the tools between csvtools and csvkit, in those cases csvtools should be recognizably faster (probably due to csvkit supporting csv variants or more functionality???).
