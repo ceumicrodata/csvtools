@@ -41,25 +41,6 @@ setup(
             'csv_to_tsv = csvtools.csv2tsv:main',
             'tsv_to_csv = csvtools.tsv2csv:main',
             'csv_snapshot = csvtools.snapshot:main',
-
-            # aliases _ -> -
-            'csv-add-id = csvtools.add_id:main',
-            'csv-select = csvtools.select:main',
-            'csv-split = csvtools.split:main',
-            'csv-cat = csvtools.concatenate:main',
-            'csv-zip = csvtools.zip:main',
-            'csv-unzip = csvtools.unzip:main',
-            'csv-rmfields = csvtools.rmfields:main',
-            'csv-extract-map = csvtools.extract_map:main',
-            'csv-to-postgres = csvtools.to_postgres:main',
-            'csv-to-tsv = csvtools.csv2tsv:main',
-            'tsv-to-csv = csvtools.tsv2csv:main',
-            'csv-snapshot = csvtools.snapshot:main',
-
-            # aliases
-            'csv2postgres = csvtools.to_postgres:main',
-            'csv2tsv = csvtools.csv2tsv:main',
-            'tsv2csv = csvtools.tsv2csv:main',
         ],
     }
 )
