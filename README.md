@@ -3,10 +3,11 @@
 Pipe friendly command line tools for processing CSV files with headers.
 
 CSV files
-- have a header row
-- use `,` as field separator and `"` as quote character
 - are well formatted according to [rfc 4180](https://tools.ietf.org/html/rfc4180)
-- all rows have the same number of fields
+  - use `,` as field separator and `"` as quote character
+  - all rows have the same number of fields
+- have a header row
+  - header names are unique
 
 
 ------------------
