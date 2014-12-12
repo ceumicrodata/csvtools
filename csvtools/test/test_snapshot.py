@@ -8,24 +8,11 @@ from .. import snapshot as m
 from unittest import TestCase
 
 from . import csv_reader
+from . import hide_stderr
 
-import contextlib
 from datetime import date
-import os
-import sys
 
 import scripttest
-
-
-@contextlib.contextmanager
-def hide_stderr():
-    stderr = sys.stderr
-    with open(os.devnull, 'w') as devnull:
-        sys.stderr = devnull
-        try:
-            yield
-        finally:
-            sys.stderr = stderr
 
 
 class Test_arguments(TestCase):
