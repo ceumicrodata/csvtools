@@ -40,6 +40,7 @@ setup(
             'csv_unzip = csvtools.unzip:main',
             'csv_rmfields = csvtools.rmfields:main',
             'csv_extract_map = csvtools.extract_map:main',
+            'csv_first_rows_by = csvtools.first_rows_by:main',
             'csv_to_postgres = csvtools.to_postgres:main',
             'csv_to_tsv = csvtools.csv2tsv:main',
             'tsv_to_csv = csvtools.tsv2csv:main',

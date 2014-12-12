@@ -26,10 +26,12 @@ Except, this works only internally @CEU, not released to PyPI: the csvtools pack
 - `add_id`
 - `add_fields`  (TODO: implement)
 - `rmfields`  (TODO: rename to `drop_fields`?)
+- `rename` (TODO: implement)
 - `select` (TODO: rename to `cut`)
 - `extract_map`
 - `unzip`
 - `zip`
+- `first_rows_by`  (TODO: implement)
 
 ### Map-reduce helpers
 - `split`
@@ -46,7 +48,6 @@ Except, this works only internally @CEU, not released to PyPI: the csvtools pack
 - `normalize_date`  (TODO: implement)
 - `drop_bad_date`  (TODO: implement)
 - `snapshot`
-- `snapshot_quality`  (TODO: implement)
 
 
 ------------------
