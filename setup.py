@@ -14,7 +14,10 @@ setup(
         version_suffix=VERSION_SUFFIX,
     ),
 
-    description=u'Tools for transforming .csv files',
+    description=(
+        u'Pipe friendly command line tools'
+        + u' for processing CSV files with headers.'
+    ),
     author=u'CEU MicroData',
     url='https://github.com/ceumicrodata/csvtools',
 

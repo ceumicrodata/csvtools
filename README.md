@@ -1,4 +1,4 @@
-# Tools for transforming .csv files
+# Pipe friendly command line tools for processing CSV files with headers.
 
 Pipe friendly command line tools for processing CSV files with headers.
 
