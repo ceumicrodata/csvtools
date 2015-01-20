@@ -44,6 +44,7 @@ setup(
             'csv_to_tsv = csvtools.csv2tsv:main',
             'tsv_to_csv = csvtools.tsv2csv:main',
             'csv_snapshot = csvtools.snapshot:main',
+            'csv_pad = csvtools.pad:main',
         ],
     }
 )

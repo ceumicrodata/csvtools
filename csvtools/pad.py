@@ -23,6 +23,7 @@ def main():
         based on number of fields in the header.
         '''
     )
+    parser.parse_args()
 
     input_stream = csv.reader(sys.stdin)
     output_stream = csv.writer(sys.stdout)
