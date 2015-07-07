@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, FileType
 from aniso8601 import parse_date
 
 from datetime import date
@@ -32,22 +32,31 @@ import unicodecsv
 
 iso8601_date = parse_date
 
+def fix_win():
+    # http://stackoverflow.com/questions/2374427/python-2-x-write-binary-output-to-stdout
+    # http://code.activestate.com/recipes/65443-sending-binary-data-to-stdout-under-windows/
+    if sys.platform == "win32":
+        import os
+        try:
+            import msvcrt
+            msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+            sys.stdout = os.fdopen(sys.stdout.fileno(), 'wb')
+        except:
+            sys.stderr.write('Can not set stdout to binary.\n')
+
+# "fix" win32 to provide binary stdout
+fix_win()
+
 
 def parse_args(argv):
     parser = ArgumentParser()
-    parser.add_argument(
-        'from_field',
-        help='start of interval field'
-    )
-    parser.add_argument(
-        'to_field',
-        help='end of interval field'
-    )
-    parser.add_argument(
-        'snapshot_date',
-        type=iso8601_date,
-        help='snapshot date in YYYY-MM-DD format'
-    )
+    arg = parser.add_argument
+    arg('from_field', help='start of interval field')
+    arg('to_field', help='end of interval field')
+    arg('snapshot_date', type=iso8601_date,
+        help='snapshot date in YYYY-MM-DD format')
+    arg('--input', type=FileType('rb'), default=sys.stdin)
+    arg('--output', type=FileType('wb'), default=sys.stdout)
     return parser.parse_args(argv)
 
 
@@ -64,13 +73,11 @@ def snapshot(rows, from_field, to_field, snapshot_date):
     get_from_date = partial(
         get_date,
         get_field=operator.itemgetter(header.index(from_field)),
-        default_date=date.min
-    )
+        default_date=date.min)
     get_to_date = partial(
         get_date,
         get_field=operator.itemgetter(header.index(to_field)),
-        default_date=date.max
-    )
+        default_date=date.max)
 
     for row in irows:
         from_date = get_from_date(row)
@@ -81,9 +88,8 @@ def snapshot(rows, from_field, to_field, snapshot_date):
 
 def main():
     args = parse_args(sys.argv[1:])
-    unicodecsv.writer(sys.stdout).writerows(
+    input_csv = unicodecsv.reader(args.input)
+    output_csv = unicodecsv.writer(args.output)
+    output_csv.writerows(
         snapshot(
-            unicodecsv.reader(sys.stdin),
-            args.from_field, args.to_field, args.snapshot_date
-        )
-    )
+            input_csv, args.from_field, args.to_field, args.snapshot_date))

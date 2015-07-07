@@ -3,7 +3,7 @@
 
 from setuptools import setup
 
-VERSION = '0.6'
+VERSION = '0.7'
 VERSION_SUFFIX = '-dev'
 VERSION_SUFFIX = ''
 
